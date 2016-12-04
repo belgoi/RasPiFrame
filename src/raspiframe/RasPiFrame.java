@@ -59,7 +59,7 @@ public class RasPiFrame extends Application
         AnchorPane root = (AnchorPane)loader.load();
 
         Scene scene = new Scene(root,Setup.screenWidth(),Setup.screenHeight());
-        
+
         stage.setScene(scene);
         stage.show();
     }
