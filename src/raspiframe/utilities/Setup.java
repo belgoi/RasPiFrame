@@ -1,12 +1,31 @@
+/**
+ * MIT License
+ *
+ * Copyright (c) 2016 David Hinchliffe
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package raspiframe.utilities;
 import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.ReadOnlyDoubleWrapper;
-import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.beans.property.ReadOnlyDoubleProperty;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import java.io.File;
@@ -18,6 +37,22 @@ import javafx.stage.Screen;
  *
  * @author David Hinchliffe <belgoi@gmail.com>
  *  Reads the config file -> config.json and defines the system static variables used through the app
+ *  a setup .json file must present with the config variables.  This allows for a simple way to configure certain variables
+ *  rather than hard coding them.  A sample file is below:
+ *             {
+ *	"image_directory": "/home/pi/RasPiFrame/Photos",
+ *	"display_time": 5.0,
+ *	"fadein": 1500.0,
+ *	"fadeout": 2500.0,
+ *	"time_to_sleep":"13:09",
+ *	"time_to_wake":"13:11"
+ *              }
+ *  copy this into a plain text file substituting your own values. image directory can be any directory. You 
+ *  can even setup a directory so that images are downloaded from a cloud server and be automatically inserted 
+ *  into the slideshow. 
+ * 
+ *  Make sure the location to the file is changed in PhotoFrameModel's getSetupFilePath()
+ *  
  */
 public final class Setup
 {
@@ -76,10 +111,12 @@ public final class Setup
          {
              return FADEOUTLENGTH.get();
          }
+         /*
+          * To be used in future version  
          public static final String weatherLocation()
          {            
              return LOCATION.get();
-         }
+         }*/
          public static final String timeToWake()
          {
              return TIME_TO_WAKE.get();
@@ -111,7 +148,7 @@ public final class Setup
          DISPLAYTIME.set((Double)setupObject.get("display_time"));
          FADEINLENGTH.set((Double)setupObject.get("fadein"));
          FADEOUTLENGTH.set((Double)setupObject.get("fadeout"));
-         LOCATION.set((String)setupObject.get("location"));
+        // LOCATION.set((String)setupObject.get("location")); to be used later 
          TIME_TO_SLEEP.set((String)setupObject.get("time_to_sleep"));
          TIME_TO_WAKE.set((String)setupObject.get("time_to_wake"));
      }
