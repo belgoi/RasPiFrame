@@ -22,15 +22,23 @@
  * SOFTWARE.
  */
 package raspiframe;
+import java.time.LocalTime;
 import raspiframe.utilities.Setup;
 import raspiframe.utilities.ImageLoader;
 import raspiframe.utilities.Sleep;
 import raspiframe.utilities.DirectoryWatcher;
+import raspiframe.utilities.Clock;
 import javafx.collections.ObservableList;
 import java.util.ArrayList;
 import raspiframe.utilities.myImageView;
 import javafx.collections.FXCollections;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import javafx.application.Platform;
+import javafx.beans.property.StringProperty;
+import javafx.beans.property.SimpleStringProperty;
+
 /**
  *
  * @author David Hinchliffe <belgoi@gmail.com>
@@ -41,6 +49,7 @@ public class PhotoFrameModel
         private final String os;
         private ObservableList<myImageView> observablePhotoList;
         private List<myImageView>photoList;
+        private StringProperty clockString=new SimpleStringProperty();
         public PhotoFrameModel()
         {
             os=System.getProperty("os.name");
@@ -52,12 +61,33 @@ public class PhotoFrameModel
             observablePhotoList=FXCollections.observableList(photoList);
             //sets when to put the screen to sleep
             setSleep();
+            startClock();
+        }
+        public StringProperty displayClock()
+        {
+            return clockString;
         }
         public ObservableList<myImageView> getObservablePhotoList()
         {
             return observablePhotoList;
         }
-        
+        public void startClock()
+        {
+           TimerTask task=new TimerTask()
+           {
+                @Override
+                public void run()
+                {
+                    Clock clock=new Clock();
+                    clockString.set(clock.getTime());
+                }
+            };
+                  int startMin;
+                  LocalTime time=LocalTime.now();
+        startMin=time.getMinute();        
+           Timer timer=new Timer();
+        timer.scheduleAtFixedRate(task, startMin,1000);
+        }
         public void setSleep()
         {
             //sets when the screen goes to sleep and wakes up

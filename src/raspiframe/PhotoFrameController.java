@@ -23,6 +23,7 @@
  */
 package raspiframe;
 import java.net.URL;
+import java.time.LocalTime;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -37,9 +38,16 @@ import javafx.animation.PauseTransition;
 import javafx.event.EventHandler;
 import javafx.util.Duration;
 import java.util.Collections;
+import java.util.Timer;
+import java.util.TimerTask;
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
+import javafx.scene.control.Label;
+import javafx.scene.text.Text;
 import raspiframe.utilities.myImageView;
 import raspiframe.utilities.Setup;
+import javafx.scene.Group;
+
 
 /**
  *
@@ -55,6 +63,15 @@ public class PhotoFrameController implements Initializable
     private AnchorPane slideShow;
     private PhotoFrameModel model;
     private  List<myImageView> pictures;
+               LocalTime time=LocalTime.now();
+    @FXML 
+    //private Label clock;
+    private Text clock;
+    private int minute;
+    private int hour;
+    @FXML private Group clockGroup;
+    
+    
     public PhotoFrameController()
     {       
         pictures=new ArrayList();
@@ -85,6 +102,8 @@ public class PhotoFrameController implements Initializable
         //Load the photos for the slideshow
         model.loadImgFiles();
         startSlideShow();
+        clock.textProperty().bindBidirectional(model.displayClock());
+
     }
 
     public void startSlideShow()
