@@ -84,7 +84,7 @@ public class DirectoryWatcher
                         System.err.println("Interrupted Exception has been thrown by watcher thread");
                         return;
                     }
-                                //get the events that have been generated 
+                    //get the events that have been generated 
                     List<WatchEvent<?>> eventList=key.pollEvents();
                     //iterate through the events to determine what events have been generated 
                     for (WatchEvent<?> event: eventList)
