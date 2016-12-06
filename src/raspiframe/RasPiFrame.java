@@ -29,6 +29,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import raspiframe.utilities.Setup;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
 
 /**
  *
@@ -48,6 +51,9 @@ public class RasPiFrame extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
+        //load the font 
+        Font.loadFont(RasPiFrame.class.getResource("fonts/OpenSans-Regular.ttf").toExternalForm(), 10);
+    
         FXMLLoader loader=new FXMLLoader(getClass().getResource("RasPiFrame.fxml"));       
         //setup the model
         PhotoFrameModel model = new PhotoFrameModel();
@@ -59,7 +65,7 @@ public class RasPiFrame extends Application
         AnchorPane root = (AnchorPane)loader.load();
 
         Scene scene = new Scene(root,Setup.screenWidth(),Setup.screenHeight());
-        
+
         stage.setScene(scene);
         stage.show();
     }
