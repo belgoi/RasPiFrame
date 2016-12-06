@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 package raspiframe;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import raspiframe.utilities.Setup;
 import raspiframe.utilities.ImageLoader;
@@ -49,7 +50,8 @@ public class PhotoFrameModel
         private final String os;
         private ObservableList<myImageView> observablePhotoList;
         private List<myImageView>photoList;
-        private StringProperty clockString=new SimpleStringProperty();
+        private StringProperty timeString=new SimpleStringProperty();
+        private StringProperty dateString = new SimpleStringProperty();
         public PhotoFrameModel()
         {
             os=System.getProperty("os.name");
@@ -63,9 +65,15 @@ public class PhotoFrameModel
             setSleep();
             startClock();
         }
-        public StringProperty displayClock()
+        public StringProperty getDate()
         {
-            return clockString;
+            Clock clock=new Clock();
+            dateString.set(clock.getDate());
+            return dateString;
+        }
+        public StringProperty getTime()
+        {
+            return timeString;
         }
         public ObservableList<myImageView> getObservablePhotoList()
         {
@@ -78,8 +86,14 @@ public class PhotoFrameModel
                 @Override
                 public void run()
                 {
-                    Clock clock=new Clock();
-                    clockString.set(clock.getTime());
+                   Clock clock=new Clock();
+                   timeString.set(clock.getTime());
+                   if(LocalTime.now().equals(LocalTime.MIDNIGHT))
+                   {
+                        dateString.set(clock.getDate());
+                   }
+                //   Clock clock=new Clock();
+                  //  timeString.set(clock.getTime());
                 }
             };
                   int startMin;

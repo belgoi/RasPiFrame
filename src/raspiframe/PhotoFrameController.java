@@ -58,12 +58,11 @@ import javafx.scene.layout.BorderPane;
 public class PhotoFrameController implements Initializable
 {
     @FXML private AnchorPane photoFrameRoot;
-    private PhotoFrameModel model;
-    private  List<myImageView> pictures;
-
     @FXML private Text clock;
     @FXML private BorderPane borderPane;
-    
+    @FXML private Text date;
+    private PhotoFrameModel model;
+    private  List<myImageView> pictures;
     
     public PhotoFrameController()
     {       
@@ -96,15 +95,14 @@ public class PhotoFrameController implements Initializable
         //Load the photos for the slideshow
         model.loadImgFiles();
         startSlideShow();
-        //clockLayout.layoutXProperty().set(0);
-        //clockLayout.layoutYProperty().set(1600);
 
 
         
     }
     public void setBindings()
     {
-        clock.textProperty().bindBidirectional(model.displayClock());
+        clock.textProperty().bindBidirectional(model.getTime());
+        date.textProperty().bindBidirectional(model.getDate());
         borderPane.prefWidthProperty().bind(photoFrameRoot.widthProperty());
         borderPane.prefHeightProperty().bind(photoFrameRoot.heightProperty());
     }
