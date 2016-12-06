@@ -29,6 +29,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import raspiframe.utilities.Setup;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 
 /**
  *
@@ -48,6 +50,9 @@ public class RasPiFrame extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
+        GridPane gridPane=new GridPane();
+        HBox hbox =new HBox();
+    
         FXMLLoader loader=new FXMLLoader(getClass().getResource("RasPiFrame.fxml"));       
         //setup the model
         PhotoFrameModel model = new PhotoFrameModel();

@@ -12,6 +12,6 @@ public class Clock
         //format minute 
         String minute=(LocalTime.now().getMinute()<10)? "0"+LocalTime.now().getMinute():Integer.toString(LocalTime.now().getMinute());
         
-        return   (hour > 12) ? hour-12 +":" + minute +" PM" :hour + ":" + minute +" AM";  
+        return   (hour > 12) ? hour-12 +":" + minute :hour + ":" + minute;  
     }
 }

@@ -47,6 +47,8 @@ import javafx.scene.text.Text;
 import raspiframe.utilities.myImageView;
 import raspiframe.utilities.Setup;
 import javafx.scene.Group;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.BorderPane;
 
 
 /**
@@ -55,21 +57,12 @@ import javafx.scene.Group;
  */
 public class PhotoFrameController implements Initializable
 {
-    @FXML
-    private AnchorPane documentRoot;
-    @FXML
-    private AnchorPane photoFrameRoot;
-    @FXML
-    private AnchorPane slideShow;
+    @FXML private AnchorPane photoFrameRoot;
     private PhotoFrameModel model;
     private  List<myImageView> pictures;
-               LocalTime time=LocalTime.now();
-    @FXML 
-    //private Label clock;
-    private Text clock;
-    private int minute;
-    private int hour;
-    @FXML private Group clockGroup;
+
+    @FXML private Text clock;
+    @FXML private BorderPane borderPane;
     
     
     public PhotoFrameController()
@@ -85,6 +78,7 @@ public class PhotoFrameController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
+        setBindings();
         model.getObservablePhotoList().addListener(new ListChangeListener()
         {
             @Override
@@ -102,10 +96,18 @@ public class PhotoFrameController implements Initializable
         //Load the photos for the slideshow
         model.loadImgFiles();
         startSlideShow();
-        clock.textProperty().bindBidirectional(model.displayClock());
+        //clockLayout.layoutXProperty().set(0);
+        //clockLayout.layoutYProperty().set(1600);
 
+
+        
     }
-
+    public void setBindings()
+    {
+        clock.textProperty().bindBidirectional(model.displayClock());
+        borderPane.prefWidthProperty().bind(photoFrameRoot.widthProperty());
+        borderPane.prefHeightProperty().bind(photoFrameRoot.heightProperty());
+    }
     public void startSlideShow()
     {
         //Sequential Transition to add the fade in, pause, and fade out transitions for each slide
