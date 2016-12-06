@@ -103,6 +103,7 @@ public class PhotoFrameController implements Initializable
     {
         clock.textProperty().bindBidirectional(model.getTime());
         date.textProperty().bindBidirectional(model.getDate());
+
         borderPane.prefWidthProperty().bind(photoFrameRoot.widthProperty());
         borderPane.prefHeightProperty().bind(photoFrameRoot.heightProperty());
     }
