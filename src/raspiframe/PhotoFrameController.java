@@ -23,6 +23,7 @@
  */
 package raspiframe;
 import java.net.URL;
+import java.time.LocalTime;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -37,9 +38,18 @@ import javafx.animation.PauseTransition;
 import javafx.event.EventHandler;
 import javafx.util.Duration;
 import java.util.Collections;
+import java.util.Timer;
+import java.util.TimerTask;
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
+import javafx.scene.control.Label;
+import javafx.scene.text.Text;
 import raspiframe.utilities.myImageView;
 import raspiframe.utilities.Setup;
+import javafx.scene.Group;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.BorderPane;
+
 
 /**
  *
@@ -47,14 +57,13 @@ import raspiframe.utilities.Setup;
  */
 public class PhotoFrameController implements Initializable
 {
-    @FXML
-    private AnchorPane documentRoot;
-    @FXML
-    private AnchorPane photoFrameRoot;
-    @FXML
-    private AnchorPane slideShow;
+    @FXML private AnchorPane photoFrameRoot;
+    @FXML private Text clock;
+    @FXML private BorderPane borderPane;
+    @FXML private Text date;
     private PhotoFrameModel model;
     private  List<myImageView> pictures;
+    
     public PhotoFrameController()
     {       
         pictures=new ArrayList();
@@ -68,6 +77,7 @@ public class PhotoFrameController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
+        setBindings();
         model.getObservablePhotoList().addListener(new ListChangeListener()
         {
             @Override
@@ -85,8 +95,18 @@ public class PhotoFrameController implements Initializable
         //Load the photos for the slideshow
         model.loadImgFiles();
         startSlideShow();
-    }
 
+
+        
+    }
+    public void setBindings()
+    {
+        clock.textProperty().bindBidirectional(model.getTime());
+        date.textProperty().bindBidirectional(model.getDate());
+
+        borderPane.prefWidthProperty().bind(photoFrameRoot.widthProperty());
+        borderPane.prefHeightProperty().bind(photoFrameRoot.heightProperty());
+    }
     public void startSlideShow()
     {
         //Sequential Transition to add the fade in, pause, and fade out transitions for each slide
