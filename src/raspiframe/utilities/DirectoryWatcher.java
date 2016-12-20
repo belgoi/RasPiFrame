@@ -101,6 +101,7 @@ public class DirectoryWatcher
                             for(int i=0;i<observablePhotoList.size();i++)
                                 if (file.getFileName().toString().equals(observablePhotoList.get(i).getImageUrl()))
                                     observablePhotoList.remove(i);
+                            
                         }
                         else if(eventKind == ENTRY_CREATE)
                         {
@@ -110,6 +111,7 @@ public class DirectoryWatcher
                             //need to delay loading the images just long enough to allow the file to finish writing    
                             Thread.sleep(100);
                             il.Load(observablePhotoList, imgs);
+                           
                             }
                             catch(InterruptedException e)
                             {

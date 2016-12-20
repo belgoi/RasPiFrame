@@ -109,7 +109,16 @@ public class PhotoFrameController implements Initializable
                     //only interested in the pictures that have been added or deleted
                     if((change.wasAdded()) || change.wasRemoved())
                         //copy the pictures over to the array that will be used in the slideshow
-                        pictures=model.getObservablePhotoList();  
+                    {
+                        //pictures.clear();
+                        pictures=model.getObservablePhotoList();
+                        //if there are no pictures then a default picture will be displayed
+                   //   if (pictures.isEmpty())
+                   //     {
+                    //        String imgUri=Paths.get(Setup.imageDirectory()+"/default/").toUri().toString();
+                    //        pictures.add(new myImageView("default",new Image(imgUri+"default.png",Setup.screenWidth(),Setup.screenHeight(),false,false)));
+                    //    }
+                    }
             }
         });
         
@@ -148,23 +157,9 @@ public class PhotoFrameController implements Initializable
         feelsLike.textProperty().bindBidirectional(weatherModel.feelsLike());
         currentTemp.textProperty().bindBidirectional(weatherModel.currentTemp());
     }
-    public void startSlideShow()
+    public SequentialTransition buildSlide(ImageView picture)
     {
-        //Sequential Transition to add the fade in, pause, and fade out transitions for each slide
-        SequentialTransition slides;
-        //Sequential Transition to play each slide
-        SequentialTransition slideshow= new SequentialTransition();
-        //if there are no pictures then a default picture will be displayed
-        if (pictures.size()==0)
-        {
-            String imgUri=Paths.get(Setup.imageDirectory()+"/default/").toUri().toString();
-            pictures.add(new myImageView("default",new Image(imgUri+"default.png",Setup.screenWidth(),Setup.screenHeight(),false,false)));
-        }
-         //shuffle the pictures so the pictures won't always be displayed in the same order   
-        Collections.shuffle(pictures);
-        for (ImageView picture:pictures)
-        {
-            slides=new SequentialTransition();
+         SequentialTransition slide=new SequentialTransition();
             //set fade in transition
             FadeTransition fadeIn = new FadeTransition(Duration.millis(Setup.fadeInDuration()),picture);
                 fadeIn.setFromValue(0.0);
@@ -176,14 +171,47 @@ public class PhotoFrameController implements Initializable
                 fadeOut.setFromValue(1.0);
                 fadeOut.setToValue(0.0);
             //add transitions to the slide
-            slides.getChildren().addAll(fadeIn,showPicture,fadeOut);
+            slide.getChildren().addAll(fadeIn,showPicture,fadeOut);
+            return slide;
+         
+    }
+    public void startSlideShow()
+    {
+        //Sequential Transition to add the fade in, pause, and fade out transitions for each slide
+        SequentialTransition slides;
+        //Sequential Transition to play each slide
+        SequentialTransition slideshow= new SequentialTransition();
+        //if there are no pictures then a default picture will be displayed
+        if (pictures.isEmpty())
+        {
+            ImageView defaultPicture;
+            String imgUri=Paths.get(Setup.imageDirectory()+"/default/").toUri().toString();
+            defaultPicture=new ImageView(new Image(imgUri+"default.png",Setup.screenWidth(),Setup.screenHeight(),false,false));
+
+            slides=buildSlide(defaultPicture);
             //since all pictures are stacked on the screen at once, 
             //the opacity has to be set to 0
-            picture.setOpacity(0);
+            defaultPicture.setOpacity(0);
             //add the pictures to the photo frame
-            photoFrameRoot.getChildren().add(picture);
+            photoFrameRoot.getChildren().add(defaultPicture);
             //add the slides to the slideshow
             slideshow.getChildren().add(slides);
+        } 
+        else
+        {
+            //shuffle the pictures so the pictures won't always be displayed in the same order
+            Collections.shuffle(pictures);
+            for (ImageView picture:pictures)
+            {
+                slides=buildSlide(picture);
+                //since all pictures are stacked on the screen at once, 
+                //the opacity has to be set to 0
+                picture.setOpacity(0);
+                //add the pictures to the photo frame
+                photoFrameRoot.getChildren().add(picture);
+                //add the slides to the slideshow
+                slideshow.getChildren().add(slides);
+            }
         }
         //go through the slideshow once then restart and refresh with any changes
         slideshow.setCycleCount(1);
