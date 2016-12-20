@@ -39,7 +39,7 @@ import javafx.collections.ObservableList;
 /**
  *
  * @author David Hinchliffe <belgoi@gmail.com>
- *  Purpose: watches the image directory for changes   
+ * watches the image directory for changes   
  */
 public class DirectoryWatcher
 {

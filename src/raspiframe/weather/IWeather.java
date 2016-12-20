@@ -21,37 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package raspiframe.utilities;
-import java.time.LocalTime;
+package raspiframe.weather;
+import java.util.Map;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
+import java.time.LocalTime;
 /**
  *
  * @author David Hinchliffe <belgoi@gmail.com>
  * 
- * Clock class setups the clock and date for the model.  
- * provides the methods getTime,getDate, 
+ * Provides the type for the Weather API's.  All of the weather API's must implement this interface
  */
-public class Clock
+public interface IWeather
 {
-    public String getTime()
-    {
-        LocalTime now=LocalTime.now();
-        //formats the time in 12 hour format
-        DateTimeFormatter formatter =DateTimeFormatter.ofPattern("h:mm");
-        //returns the time in format 1:12
-        return now.format(formatter);
-    }
-    public String getDate()
-    {
-        LocalDate now=LocalDate.now();
-        int day=now.getDayOfMonth();
-        //formats the month to the short form, ie Jan,Feb,Mar,etc
-        String shortMonth=now.format(DateTimeFormatter.ofPattern("MMM"));
-        //formates the day of week to the long form, ie Monday,Tuesday,etc
-        String dayOfWeek=now.format(DateTimeFormatter.ofPattern("EEEE"));
-        //return in format Sunday, Dec 18
-        return dayOfWeek +", " +shortMonth + " "+day;
-    }
+   public  Map<LocalDate,ForecastData> getForecast();
+    public  void setLocation(String location);
+   public CurrentConditions getCurrentConditions();
+    public void refreshWeather ();
+    public LocalTime getSunrise();
+    public LocalTime getSunset();
 }

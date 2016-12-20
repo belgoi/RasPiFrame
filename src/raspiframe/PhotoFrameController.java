@@ -23,7 +23,7 @@
  */
 package raspiframe;
 import java.net.URL;
-import java.time.LocalTime;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -32,23 +32,18 @@ import java.util.List;
 import javafx.scene.image.ImageView;
 import java.util.ArrayList;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.Group;
 import javafx.animation.SequentialTransition;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.event.EventHandler;
 import javafx.util.Duration;
 import java.util.Collections;
-import java.util.Timer;
-import java.util.TimerTask;
-import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
-import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.text.Text;
 import raspiframe.utilities.myImageView;
 import raspiframe.utilities.Setup;
-import javafx.scene.Group;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.BorderPane;
 
 
 /**
@@ -59,19 +54,45 @@ public class PhotoFrameController implements Initializable
 {
     @FXML private AnchorPane photoFrameRoot;
     @FXML private Text clock;
-    @FXML private BorderPane borderPane;
+    @FXML private Group clockGroup;
     @FXML private Text date;
+    @FXML private Group currentGroup;
+    @FXML private Group forecastGroup;
+    @FXML private Text windSpeed;
+    @FXML private Text humidity;
+    @FXML private Text feelsLike;
+    @FXML private Text currentTemp;
+    @FXML private ImageView currentIcon;
+    @FXML private ImageView day0Icon;
+    @FXML private Text day0High;
+    @FXML private Text day0Low;
+    @FXML private Text day1Label;
+    @FXML private ImageView day1Icon;
+    @FXML private Text day1High;
+    @FXML private Text day1Low;
+    @FXML private Text day2Label;
+    @FXML private ImageView day2Icon;
+    @FXML private Text day2High;
+    @FXML private Text day2Low;
+    @FXML private Text day3Label;
+    @FXML private ImageView day3Icon;
+    @FXML private Text day3High;
+    @FXML private Text day3Low;
+    //@FXML private ImageView 
+    
     private PhotoFrameModel model;
+    private WeatherModel weatherModel;
     private  List<myImageView> pictures;
     
     public PhotoFrameController()
     {       
         pictures=new ArrayList();
     }
-    public PhotoFrameController(PhotoFrameModel model)
+    public PhotoFrameController(PhotoFrameModel model, WeatherModel weatherModel)
     {
         this();
         this.model=model;
+        this.weatherModel=weatherModel;
     }
   
     @Override
@@ -95,17 +116,37 @@ public class PhotoFrameController implements Initializable
         //Load the photos for the slideshow
         model.loadImgFiles();
         startSlideShow();
-
-
-        
     }
     public void setBindings()
     {
-        clock.textProperty().bindBidirectional(model.getTime());
-        date.textProperty().bindBidirectional(model.getDate());
-
-        borderPane.prefWidthProperty().bind(photoFrameRoot.widthProperty());
-        borderPane.prefHeightProperty().bind(photoFrameRoot.heightProperty());
+        clock.textProperty().bindBidirectional(model.timeProperty());
+        date.textProperty().bindBidirectional(model.dateProperty());
+        double position =Setup.screenHeight()-clockGroup.getLayoutBounds().getMaxY();
+        clockGroup.setLayoutY(position);
+        double positionX=Setup.screenWidth()-forecastGroup.getLayoutBounds().getMaxX();
+        forecastGroup.setLayoutX(positionX);
+        day0High.textProperty().bindBidirectional(weatherModel.day0High());
+        day0Low.textProperty().bindBidirectional(weatherModel.day0Low());
+        day0Icon.imageProperty().bindBidirectional(weatherModel.day0Icon());
+        day1Label.textProperty().bindBidirectional(weatherModel.day1Label());
+        day1High.textProperty().bindBidirectional(weatherModel.day1High());
+        day1Low.textProperty().bindBidirectional(weatherModel.day1Low());
+        day1Icon.imageProperty().bindBidirectional(weatherModel.day1Icon());
+        day2Label.textProperty().bindBidirectional(weatherModel.day2Label());
+        day2High.textProperty().bindBidirectional(weatherModel.day2High());
+        day2Low.textProperty().bindBidirectional(weatherModel.day2Low());
+        day2Icon.imageProperty().bindBidirectional(weatherModel.day2Icon());
+        day3Label.textProperty().bindBidirectional(weatherModel.day3Label());
+        day3Low.textProperty().bindBidirectional(weatherModel.day3Low());
+        day3High.textProperty().bindBidirectional(weatherModel.day3High());
+        day3Icon.imageProperty().bindBidirectional(weatherModel.day3Icon());
+        currentIcon.imageProperty().bindBidirectional(weatherModel.currentIcon());
+        currentGroup.setLayoutX(0);
+        currentGroup.setLayoutY(15);
+        windSpeed.textProperty().bindBidirectional(weatherModel.windMph());
+        humidity.textProperty().bindBidirectional(weatherModel.relativeHumidity());
+        feelsLike.textProperty().bindBidirectional(weatherModel.feelsLike());
+        currentTemp.textProperty().bindBidirectional(weatherModel.currentTemp());
     }
     public void startSlideShow()
     {
@@ -113,7 +154,13 @@ public class PhotoFrameController implements Initializable
         SequentialTransition slides;
         //Sequential Transition to play each slide
         SequentialTransition slideshow= new SequentialTransition();
-        //shuffle the pictures so the pictures won't always be displayed in the same order
+        //if there are no pictures then a default picture will be displayed
+        if (pictures.size()==0)
+        {
+            String imgUri=Paths.get(Setup.imageDirectory()+"/default/").toUri().toString();
+            pictures.add(new myImageView("default",new Image(imgUri+"default.png",Setup.screenWidth(),Setup.screenHeight(),false,false)));
+        }
+         //shuffle the pictures so the pictures won't always be displayed in the same order   
         Collections.shuffle(pictures);
         for (ImageView picture:pictures)
         {
