@@ -47,31 +47,45 @@ public class ParseWeatherUnderground
     public CurrentConditions getCurrentConditions(String httpEntity)
     {
         CurrentConditions conditions=new CurrentConditions();
-        try
+        if (!httpEntity.isEmpty())
         {
-            JSONParser parser=new JSONParser();
-            JSONObject weatherData=(JSONObject)parser.parse(httpEntity);
-            //parses the JSON object current observation to get current conditions
-            JSONObject currently=(JSONObject)weatherData.get("current_observation");
-            conditions.setWindSpeed(((Double)currently.get("wind_mph")).toString()+" Mph " + (String)currently.get("wind_dir"));
-                Double feelsLike=Double.parseDouble((String)currently.get("feelslike_f"));                    
-            conditions.setFeelsLike(Integer.toString(feelsLike.intValue())+ "\u00b0");
-            conditions.setRelativeHumidity((String)currently.get("relative_humidity"));
-            Double temp=(Double)currently.get("temp_f");
-            conditions.setCurrentTemp(Integer.toString(temp.intValue())+"\u00b0");
-            conditions.setWeatherCondition((String)currently.get("weather"));
-            //parses the JSON object sun phase to get sunrise and sunset
-            JSONObject astronomy =(JSONObject)weatherData.get("sun_phase");
-            JSONObject sunset = (JSONObject)astronomy.get("sunset");
-            JSONObject sunrise=(JSONObject)astronomy.get("sunrise");
-            LocalTime sunsetTime=LocalTime.of(Integer.parseInt((String)sunset.get("hour")), Integer.parseInt((String)sunset.get("minute")));
-            LocalTime sunriseTime=LocalTime.of(Integer.parseInt((String)sunrise.get("hour")),Integer.parseInt((String)sunrise.get("minute"))); 
-            conditions.setSunrise(sunriseTime);
-            conditions.setSunset(sunsetTime);
+            try
+            {
+                JSONParser parser=new JSONParser();
+                JSONObject weatherData=(JSONObject)parser.parse(httpEntity);
+                //parses the JSON object current observation to get current conditions
+                JSONObject currently=(JSONObject)weatherData.get("current_observation");
+               conditions.setWindSpeed(((Double)currently.get("wind_mph")).toString()+" - "+((String)currently.get("wind_gust_mph"))+" mph " + formatDirection((String)currently.get("wind_dir")));
+               //conditions.setWindSpeed(((Double)currently.get("wind_mph")).toString()+" mph " + formatDirection("West"));
+                    Double feelsLike=Double.parseDouble((String)currently.get("feelslike_f"));                    
+                conditions.setFeelsLike(Integer.toString(feelsLike.intValue())+ "\u00b0");
+                conditions.setRelativeHumidity((String)currently.get("relative_humidity"));
+                Double temp=(Double)currently.get("temp_f");
+                conditions.setCurrentTemp(Integer.toString(temp.intValue())+"\u00b0");
+                conditions.setWeatherCondition((String)currently.get("weather"));
+                //parses the JSON object sun phase to get sunrise and sunset
+                JSONObject astronomy =(JSONObject)weatherData.get("sun_phase");
+                JSONObject sunset = (JSONObject)astronomy.get("sunset");
+                JSONObject sunrise=(JSONObject)astronomy.get("sunrise");
+                LocalTime sunsetTime=LocalTime.of(Integer.parseInt((String)sunset.get("hour")), Integer.parseInt((String)sunset.get("minute")));
+                LocalTime sunriseTime=LocalTime.of(Integer.parseInt((String)sunrise.get("hour")),Integer.parseInt((String)sunrise.get("minute"))); 
+                conditions.setSunrise(sunriseTime);
+                conditions.setSunset(sunsetTime);
+            }
+            catch(ParseException e)
+            {
+                System.err.println(e);
+            }
         }
-        catch(ParseException e)
+        else
         {
-            System.err.println(e);
+            conditions.setCurrentTemp("NA");
+            conditions.setFeelsLike("NA");
+            conditions.setRelativeHumidity("NA");
+            conditions.setSunrise(LocalTime.now());
+            conditions.setSunset(LocalTime.now());
+            conditions.setWeatherCondition("Unknown");
+            conditions.setWindSpeed("NA");
         }
         return conditions;
     }
@@ -115,6 +129,15 @@ public class ParseWeatherUnderground
             System.err.println(e);
         }
         return conditions;
+    }
+    public String formatDirection(String longDirection)
+    {
+        String shortDirection=longDirection;
+        shortDirection =shortDirection.contains("North")?shortDirection.replace("North","N"):shortDirection;
+        shortDirection=shortDirection.contains("South")?shortDirection.replace("South","S"):shortDirection;
+        shortDirection=shortDirection.contains("East")?shortDirection.replace("East","E"):shortDirection;
+        shortDirection=shortDirection.contains("West")?shortDirection.replace("West","W"):shortDirection;
+        return shortDirection;
     }
     
 }

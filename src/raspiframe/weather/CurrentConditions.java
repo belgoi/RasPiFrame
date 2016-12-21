@@ -17,6 +17,10 @@ public class CurrentConditions
     private String currentTemp;
     private LocalTime sunrise;
     private LocalTime sunset;
+    public CurrentConditions()
+    {
+
+    }
 
     public String getWindSpeed()
     {

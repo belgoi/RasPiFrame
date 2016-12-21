@@ -73,11 +73,13 @@ public class WeatherUndergroundAPI implements IWeather
     @Override
     public void refreshWeather()
     {
-
+        currentConditions=new CurrentConditions();
         httpConnection connection=new httpConnection(HOST,buildGetWeatherRequestUri());
+        String httpEntity=connection.getEntity();
         ParseWeatherUnderground parse=new ParseWeatherUnderground();
-        forecast=parse.getForecast(connection.getEntity());
-        currentConditions=parse.getCurrentConditions(connection.getEntity());
+        forecast=parse.getForecast(httpEntity);
+        currentConditions=parse.getCurrentConditions(httpEntity);
+    //    }
     }
     
     //Returns the hashmap with the forecast data

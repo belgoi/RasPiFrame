@@ -248,6 +248,6 @@ public class WeatherModel
             startMin=time.getMinute();        
             Timer timer=new Timer();
             //1000*60*interval converts milliseconds to minutes 
-            timer.scheduleAtFixedRate(task, startMin,1000 * 60 * Setup.updateWeatherInterval());
+             timer.scheduleAtFixedRate(task, startMin,1000 * 60 * Setup.updateWeatherInterval());
         }
 }
