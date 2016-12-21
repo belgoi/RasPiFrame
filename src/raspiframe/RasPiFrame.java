@@ -52,13 +52,15 @@ public class RasPiFrame extends Application
     public void start(Stage stage) throws Exception
     {
         //load the font 
-        Font.loadFont(RasPiFrame.class.getResource("fonts/OpenSans-Regular.ttf").toExternalForm(), 10);
+        Font.loadFont(RasPiFrame.class.getResource("fonts/OpenSans-Bold.ttf").toExternalForm(), 10);
+        Font.loadFont(RasPiFrame.class.getResource("fonts/OpenSans-ExtraBold.ttf").toExternalForm(),10);
     
         FXMLLoader loader=new FXMLLoader(getClass().getResource("RasPiFrame.fxml"));       
         //setup the model
         PhotoFrameModel model = new PhotoFrameModel();
+        WeatherModel weatherModel=new WeatherModel();
         //setup the controller and pass it a reference to the model
-        PhotoFrameController controller = new PhotoFrameController(model);
+        PhotoFrameController controller = new PhotoFrameController(model,weatherModel);
         //attach the controller to the view (FXML)
         loader.setController(controller);
 
