@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 package raspiframe;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import raspiframe.utilities.Setup;
 import raspiframe.utilities.ImageLoader;
@@ -36,7 +35,6 @@ import javafx.collections.FXCollections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -46,17 +44,16 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class PhotoFrameModel
 {
-        private Setup setup;
         private final String os;
         private ObservableList<myImageView> observablePhotoList;
         private List<myImageView>photoList;
-        private StringProperty timeString=new SimpleStringProperty();
+        private final StringProperty timeString=new SimpleStringProperty();
         private StringProperty dateString = new SimpleStringProperty();
         public PhotoFrameModel()
         {
             os=System.getProperty("os.name");
             //Instantiate the Setup object and set the values for the static variables
-            new Setup(getSetupFilePath());
+           // new Setup(getSetupFilePath());
             //underlying arraylist for the observable photo list
             photoList=new ArrayList();
             //the observableList for all of the photos 
@@ -64,14 +61,15 @@ public class PhotoFrameModel
             //sets when to put the screen to sleep
             setSleep();
             startClock();
+ 
         }
-        public StringProperty getDate()
+        public StringProperty dateProperty()
         {
             Clock clock=new Clock();
             dateString.set(clock.getDate());
             return dateString;
         }
-        public StringProperty getTime()
+        public StringProperty timeProperty()
         {
             return timeString;
         }
@@ -79,7 +77,7 @@ public class PhotoFrameModel
         {
             return observablePhotoList;
         }
-        public void startClock()
+        private void startClock()
         {
            TimerTask task=new TimerTask()
            {
@@ -88,26 +86,21 @@ public class PhotoFrameModel
                 {
                    Clock clock=new Clock();
                    timeString.set(clock.getTime());
-                   if(LocalTime.now().equals(LocalTime.MIDNIGHT))
-                   {
-                        dateString.set(clock.getDate());
-                   }
-                //   Clock clock=new Clock();
-                  //  timeString.set(clock.getTime());
+                   dateString.set(clock.getDate());
                 }
             };
-                  int startMin;
-                  LocalTime time=LocalTime.now();
-        startMin=time.getMinute();        
-           Timer timer=new Timer();
-        timer.scheduleAtFixedRate(task, startMin,1000);
+            int startMin;
+            LocalTime time=LocalTime.now();
+            startMin=time.getMinute();        
+            Timer timer=new Timer();
+            timer.scheduleAtFixedRate(task, startMin,1000);
         }
-        public void setSleep()
+        private void setSleep()
         {
             //sets when the screen goes to sleep and wakes up
             //Only works on the raspberry pi
             Sleep sleep=new Sleep();
-            if(Setup.OS().equals("Linux"))
+            if(Setup.os().equals("Linux"))
                 sleep.putToSleep(Setup.timeToSleep(), Setup.timeToWake());
         }
         public void loadImgFiles()
@@ -116,13 +109,14 @@ public class PhotoFrameModel
             //this is the tie in for the controller.  when the images are loaded into observableList
             //the controller's OnChange event is called.  
              ImageLoader imageLoader=new ImageLoader();
+             imageLoader.getFileNames();
              imageLoader.Load(observablePhotoList,imageLoader.getFileNames());     
              //starts the directory watcher thread after the pictures have been loaded
              DirectoryWatcher watcher=new DirectoryWatcher();
                     watcher.watchImgDirectory(Setup.imageDirectory(),observablePhotoList);
         }
 
-        private String getSetupFilePath()
+       /* private String getSetupFilePath()
         {
             String path=new String();
             if (os.equals("Linux"))
@@ -131,5 +125,5 @@ public class PhotoFrameModel
                 path="C:/RasPiFrame/config.json";
         
             return path;
-        }          
+        }*/          
 }

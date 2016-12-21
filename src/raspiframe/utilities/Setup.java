@@ -26,12 +26,16 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.LongProperty;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import java.io.File;
 import java.io.FileReader;
 import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
+import java.io.IOException;
+import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -45,7 +49,9 @@ import javafx.stage.Screen;
  *	"fadein": 1500.0,
  *	"fadeout": 2500.0,
  *	"time_to_sleep":"13:09",
- *	"time_to_wake":"13:11"
+ *	"time_to_wake":"13:11",
+ *              "weather_api_key":"your key",
+ *              "update_weather_interval":15
  *              }
  *  copy this into a plain text file substituting your own values. image directory can be any directory. You 
  *  can even setup a directory so that images are downloaded from a cloud server and be automatically inserted 
@@ -66,12 +72,12 @@ public final class Setup
     private final static StringProperty OS=new SimpleStringProperty();
     private final static DoubleProperty SCREENWIDTH = new SimpleDoubleProperty();
     private final static DoubleProperty SCREENHEIGHT = new SimpleDoubleProperty();
-            
-    public Setup(String configFilePath)
-    {
-        //read the config file
-        readJsonFile(configFilePath);
+    private final static StringProperty WEATHERAPIKEY = new SimpleStringProperty();
+    private final static LongProperty UPDATEWEATHERINTERVAL = new SimpleLongProperty();
 
+    //static iniatilizer to setup all of the values in the static class
+    static
+    {
         OS.set(System.getProperty("os.name"));
         if(System.getProperty("os.name").contains("Windows"))
             OS.set("Windows");
@@ -81,8 +87,27 @@ public final class Setup
         Rectangle2D screenDimensions=Screen.getPrimary().getVisualBounds();
         SCREENWIDTH.set(screenDimensions.getWidth());
         SCREENHEIGHT.set(screenDimensions.getHeight());
-        
+        //read the config file
+        readJsonFile(getSetupFilePath() + "/config.json");
     }
+        public static String getSetupFilePath()
+        {
+            String path=new String();
+            if (os().equals("Linux"))
+                path="/home/pi/RasPiFrame/config";
+            else if (os().contains("Windows"))
+                path="C:/RasPiFrame";
+
+            return path;
+        }
+        public static final Long updateWeatherInterval()
+        {
+            return UPDATEWEATHERINTERVAL.get();
+        }
+        public static final String weatherApiKey()
+        {
+            return WEATHERAPIKEY.get();
+        }
         public static final double screenWidth()
         {
             return SCREENWIDTH.get();
@@ -91,7 +116,7 @@ public final class Setup
         {
             return SCREENHEIGHT.get();
         }
-         public static final String OS()
+         public static final String os()
          {
              return OS.get();
          }
@@ -111,12 +136,11 @@ public final class Setup
          {
              return FADEOUTLENGTH.get();
          }
-         /*
-          * To be used in future version  
+  
          public static final String weatherLocation()
          {            
              return LOCATION.get();
-         }*/
+         }
          public static final String timeToWake()
          {
              return TIME_TO_WAKE.get();
@@ -126,9 +150,9 @@ public final class Setup
              return TIME_TO_SLEEP.get();
          }
 
-         private void readJsonFile(String configFilePath)
+         private static void readJsonFile(String configFilePath)
          {
-            JSONObject setupObject=new JSONObject();
+            JSONObject setupObject;
              try
             {
                 JSONParser parser=new JSONParser();
@@ -136,21 +160,23 @@ public final class Setup
                 setupObject=(JSONObject)parser.parse(new FileReader(configFile));
                 parseConfig(setupObject);
             }
-            catch (Exception e)
+            catch (IOException  | ParseException e)
             {
-                e.printStackTrace();
+                System.err.println(e);
             }
          }
-     private void parseConfig(JSONObject setupObject)
+     private static void parseConfig(JSONObject setupObject)
      {
          //JSON object is stored as a HashMap but each value must be cast into the correct type
          IMAGEDIRECTORY.set((String)setupObject.get("image_directory"));
          DISPLAYTIME.set((Double)setupObject.get("display_time"));
          FADEINLENGTH.set((Double)setupObject.get("fadein"));
          FADEOUTLENGTH.set((Double)setupObject.get("fadeout"));
-        // LOCATION.set((String)setupObject.get("location")); to be used later 
+         LOCATION.set((String)setupObject.get("location"));
          TIME_TO_SLEEP.set((String)setupObject.get("time_to_sleep"));
          TIME_TO_WAKE.set((String)setupObject.get("time_to_wake"));
+         WEATHERAPIKEY.set((String)setupObject.get("weather_api_key"));
+         UPDATEWEATHERINTERVAL.set((Long)setupObject.get("update_weather_interval"));
      }
 
 }

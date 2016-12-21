@@ -1,0 +1,143 @@
+/**
+ * MIT License
+ *
+ * Copyright (c) 2016 David Hinchliffe
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package raspiframe.weather;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.ParseException;
+import java.util.HashMap;
+import java.util.Map;
+import java.time.LocalDate;
+import java.time.LocalTime;
+/**
+ *
+ * @author David Hinchliffe <belgoi@gmail.com>
+ * 
+ * Parses the weatherunderground JSON object in the httpEntity string passed into it from the weather API.
+ * Provides the methods getCurrentConditions, and getForecast 
+ */
+public class ParseWeatherUnderground
+{
+    public ParseWeatherUnderground(){}
+    
+    //getCurrentConditions takes the JSON httpEntity string and parses out the 
+    //fields for current conditions and the sunset and sunrise times 
+    //returns the object CurrentConditions with the current conditions
+    public CurrentConditions getCurrentConditions(String httpEntity)
+    {
+        CurrentConditions conditions=new CurrentConditions();
+        if (!httpEntity.isEmpty())
+        {
+            try
+            {
+                JSONParser parser=new JSONParser();
+                JSONObject weatherData=(JSONObject)parser.parse(httpEntity);
+                //parses the JSON object current observation to get current conditions
+                JSONObject currently=(JSONObject)weatherData.get("current_observation");
+               conditions.setWindSpeed(((Double)currently.get("wind_mph")).toString()+" - "+((String)currently.get("wind_gust_mph"))+" mph " + formatDirection((String)currently.get("wind_dir")));
+               //conditions.setWindSpeed(((Double)currently.get("wind_mph")).toString()+" mph " + formatDirection("West"));
+                    Double feelsLike=Double.parseDouble((String)currently.get("feelslike_f"));                    
+                conditions.setFeelsLike(Integer.toString(feelsLike.intValue())+ "\u00b0");
+                conditions.setRelativeHumidity((String)currently.get("relative_humidity"));
+                Double temp=(Double)currently.get("temp_f");
+                conditions.setCurrentTemp(Integer.toString(temp.intValue())+"\u00b0");
+                conditions.setWeatherCondition((String)currently.get("weather"));
+                //parses the JSON object sun phase to get sunrise and sunset
+                JSONObject astronomy =(JSONObject)weatherData.get("sun_phase");
+                JSONObject sunset = (JSONObject)astronomy.get("sunset");
+                JSONObject sunrise=(JSONObject)astronomy.get("sunrise");
+                LocalTime sunsetTime=LocalTime.of(Integer.parseInt((String)sunset.get("hour")), Integer.parseInt((String)sunset.get("minute")));
+                LocalTime sunriseTime=LocalTime.of(Integer.parseInt((String)sunrise.get("hour")),Integer.parseInt((String)sunrise.get("minute"))); 
+                conditions.setSunrise(sunriseTime);
+                conditions.setSunset(sunsetTime);
+            }
+            catch(ParseException e)
+            {
+                System.err.println(e);
+            }
+        }
+        else
+        {
+            conditions.setCurrentTemp("NA");
+            conditions.setFeelsLike("NA");
+            conditions.setRelativeHumidity("NA");
+            conditions.setSunrise(LocalTime.now());
+            conditions.setSunset(LocalTime.now());
+            conditions.setWeatherCondition("Unknown");
+            conditions.setWindSpeed("NA");
+        }
+        return conditions;
+    }
+    //getForecast takes the JSON httpEntity and parses out the current day forecast and the forecast
+    //for the next 3 days.returns a hashmap with the date for the forecast as the key, and the forecast 
+    //for the day as the value
+    public Map<LocalDate,ForecastData> getForecast(String httpEntity)
+    {
+        Map<LocalDate,ForecastData> conditions=new HashMap<>();
+
+        try
+        {
+            JSONParser parser=new JSONParser();
+            JSONObject weatherData=(JSONObject)parser.parse(httpEntity);
+            JSONObject forecast=(JSONObject)weatherData.get("forecast");
+            JSONObject simpleForecast=(JSONObject)forecast.get("simpleforecast");
+            JSONArray daily =(JSONArray)simpleForecast.get("forecastday");
+            JSONObject periodForecast;
+            for (int i=0;i<daily.size();i++)
+            {
+                ForecastData forecastData=new ForecastData();
+                periodForecast=(JSONObject)daily.get(i);
+                JSONObject highArray = (JSONObject)periodForecast.get("high");
+                    forecastData.setExpectedHighTempFahrenheit((highArray.get("fahrenheit")).toString()+"\u00b0");
+                    forecastData.setExpectedHighTempCelsius((highArray.get("celsius")).toString()+"\u00b0");
+                JSONObject lowArray = (JSONObject)periodForecast.get("low");
+                    forecastData.setExpectedLowTempFahrenheit((lowArray.get("fahrenheit")).toString()+"\u00b0");
+                    forecastData.setExpectedLowTempCelsius((lowArray.get("celsius")).toString()+"\u00b0");
+                JSONObject dateArray=(JSONObject)periodForecast.get("date");
+                        String day = dateArray.get("day").toString();
+                        String month=dateArray.get("month").toString();
+                        String year=dateArray.get("year").toString();
+                        LocalDate period=LocalDate.of(Integer.parseInt(year),Integer.parseInt(month),Integer.parseInt(day));  
+
+                    forecastData.setWeatherCondition(periodForecast.get("conditions").toString());
+                    conditions.put(period, forecastData);
+            }
+        }
+        catch(ParseException e)
+        {
+            System.err.println(e);
+        }
+        return conditions;
+    }
+    public String formatDirection(String longDirection)
+    {
+        String shortDirection=longDirection;
+        shortDirection =shortDirection.contains("North")?shortDirection.replace("North","N"):shortDirection;
+        shortDirection=shortDirection.contains("South")?shortDirection.replace("South","S"):shortDirection;
+        shortDirection=shortDirection.contains("East")?shortDirection.replace("East","E"):shortDirection;
+        shortDirection=shortDirection.contains("West")?shortDirection.replace("West","W"):shortDirection;
+        return shortDirection;
+    }
+    
+}
