@@ -55,14 +55,29 @@ public class ParseWeatherUnderground
                 JSONObject weatherData=(JSONObject)parser.parse(httpEntity);
                 //parses the JSON object current observation to get current conditions
                 JSONObject currently=(JSONObject)weatherData.get("current_observation");
-               conditions.setWindSpeed(((Double)currently.get("wind_mph")).toString()+" - "+((String)currently.get("wind_gust_mph"))+" mph " + formatDirection((String)currently.get("wind_dir")));
-               //conditions.setWindSpeed(((Double)currently.get("wind_mph")).toString()+" mph " + formatDirection("West"));
-                    Double feelsLike=Double.parseDouble((String)currently.get("feelslike_f"));                    
+                
+                //get and set the wind conditions
+                String windSpeed=((Double)currently.get("wind_mph")).toString();
+                String windString=(String)currently.get("wind_string");
+                String windDirection=formatDirection((String)currently.get("wind_dir"));       
+               //build the wind string to display on the overlay 
+                if (windString.equals("Calm"))
+                    conditions.setWindSpeed("0 mph");
+                else
+                {
+                    //if wind gusts are 0 mph then the API returns a long rather than a string resulting in a cast exception
+                    //so we cast it here since wind gusts should be greater than 0
+                    String windGusts=(String)currently.get("wind_gust_mph");                
+                    conditions.setWindSpeed(windSpeed.equals(windGusts)?windSpeed + " mph":windSpeed +" - " + windGusts + " mph " + windDirection);
+                }
+                
+                Double feelsLike=Double.parseDouble((String)currently.get("feelslike_f"));                    
                 conditions.setFeelsLike(Integer.toString(feelsLike.intValue())+ "\u00b0");
                 conditions.setRelativeHumidity((String)currently.get("relative_humidity"));
                 Double temp=(Double)currently.get("temp_f");
                 conditions.setCurrentTemp(Integer.toString(temp.intValue())+"\u00b0");
                 conditions.setWeatherCondition((String)currently.get("weather"));
+                
                 //parses the JSON object sun phase to get sunrise and sunset
                 JSONObject astronomy =(JSONObject)weatherData.get("sun_phase");
                 JSONObject sunset = (JSONObject)astronomy.get("sunset");
@@ -72,21 +87,12 @@ public class ParseWeatherUnderground
                 conditions.setSunrise(sunriseTime);
                 conditions.setSunset(sunsetTime);
             }
-            catch(ParseException e)
+            catch(ParseException | ClassCastException e)
             {
-                System.err.println(e);
+                System.err.println("ParseWeatherUnderground: getCurrentConditions: " + e);
             }
         }
-        else
-        {
-            conditions.setCurrentTemp("NA");
-            conditions.setFeelsLike("NA");
-            conditions.setRelativeHumidity("NA");
-            conditions.setSunrise(LocalTime.now());
-            conditions.setSunset(LocalTime.now());
-            conditions.setWeatherCondition("Unknown");
-            conditions.setWindSpeed("NA");
-        }
+
         return conditions;
     }
     //getForecast takes the JSON httpEntity and parses out the current day forecast and the forecast
@@ -108,6 +114,7 @@ public class ParseWeatherUnderground
             {
                 ForecastData forecastData=new ForecastData();
                 periodForecast=(JSONObject)daily.get(i);
+                
                 JSONObject highArray = (JSONObject)periodForecast.get("high");
                     forecastData.setExpectedHighTempFahrenheit((highArray.get("fahrenheit")).toString()+"\u00b0");
                     forecastData.setExpectedHighTempCelsius((highArray.get("celsius")).toString()+"\u00b0");
@@ -124,9 +131,9 @@ public class ParseWeatherUnderground
                     conditions.put(period, forecastData);
             }
         }
-        catch(ParseException e)
+        catch(ParseException | ClassCastException e)
         {
-            System.err.println(e);
+            System.err.println("ParseWeatherUnderground: getForecast: " + e);
         }
         return conditions;
     }
@@ -139,5 +146,16 @@ public class ParseWeatherUnderground
         shortDirection=shortDirection.contains("West")?shortDirection.replace("West","W"):shortDirection;
         return shortDirection;
     }
+    public String determineWind(String windDirection, String windSpeed, String windGusts,String windString)
+    {
+        String wind;
+        if (windString.equals("Calm"))
+            wind="0 mph";
+        else
+            wind=windSpeed.equals(windGusts)?windSpeed + " mph": windSpeed + " - " + windGusts + " mph " + formatDirection(windDirection);
+        return wind;
+           
+    }
+            
     
 }

@@ -66,7 +66,7 @@ public class DirectoryWatcher
                 }
                 catch(IOException e)
                 {
-                    System.err.println(e);
+                    System.err.println("DirectoryWatcher: watchDirectory: " + e);
                     return;
                 }
             }
@@ -81,7 +81,7 @@ public class DirectoryWatcher
                     }
                     catch(InterruptedException e)
                     {
-                        System.err.println("Interrupted Exception has been thrown by watcher thread");
+                        System.err.println("DirectoryWatcher: Interrupted Exception has been thrown by watcher thread");
                         return;
                     }
                     //get the events that have been generated 
@@ -109,13 +109,13 @@ public class DirectoryWatcher
                             ImageLoader il=new ImageLoader();
                             String[] imgs={file.getFileName().toString()};
                             //need to delay loading the images just long enough to allow the file to finish writing    
-                            Thread.sleep(100);
+                            Thread.sleep(500);
                             il.Load(observablePhotoList, imgs);
                            
                             }
                             catch(InterruptedException e)
                             {
-                                System.err.println(e);
+                                System.err.println("DirectoryWatcher: FileAdded: " + e);
                             }
                         }
 
@@ -128,6 +128,7 @@ public class DirectoryWatcher
             }
         }
                 Thread t=new Thread(new watchDirectory(imgDirectory,observablePhotoList));
+                t.setName("Directory Watcher thread");
                 t.start();
      }
 }

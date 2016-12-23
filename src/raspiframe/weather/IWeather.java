@@ -36,7 +36,7 @@ public interface IWeather
    public  Map<LocalDate,ForecastData> getForecast();
     public  void setLocation(String location);
    public CurrentConditions getCurrentConditions();
-    public void refreshWeather ();
+    public boolean refreshWeather ();
     public LocalTime getSunrise();
     public LocalTime getSunset();
 }

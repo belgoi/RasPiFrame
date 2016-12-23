@@ -71,7 +71,7 @@ public class WeatherUndergroundAPI implements IWeather
     //httpEntity to the parseWeatherUnderground object's getForecast method and getCurrentConditions
     //to set the weather conditions properties
     @Override
-    public void refreshWeather()
+    public boolean refreshWeather()
     {
         currentConditions=new CurrentConditions();
         httpConnection connection=new httpConnection(HOST,buildGetWeatherRequestUri());
@@ -79,6 +79,10 @@ public class WeatherUndergroundAPI implements IWeather
         ParseWeatherUnderground parse=new ParseWeatherUnderground();
         forecast=parse.getForecast(httpEntity);
         currentConditions=parse.getCurrentConditions(httpEntity);
+        if (httpEntity.isEmpty() || currentConditions.getWeatherCondition().equals("Unknown"))
+            return false;
+        else
+            return true;
     //    }
     }
     

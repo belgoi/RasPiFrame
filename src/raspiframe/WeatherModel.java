@@ -80,8 +80,11 @@ public class WeatherModel
     private StringProperty relHumidity=new SimpleStringProperty();
     private ObjectProperty currentIcon=new SimpleObjectProperty();
     private StringProperty feelsLike=new SimpleStringProperty();
+    private long updateInterval;
+    
     public WeatherModel()
     {
+        updateInterval=Setup.updateWeatherInterval();
         //instantiate the weather object with the weather API key and pass the location   
         weather = new WeatherUndergroundAPI(Setup.weatherApiKey());
         weather.setLocation(Setup.weatherLocation());
@@ -236,11 +239,24 @@ public class WeatherModel
                 @Override
                 public void run()
                 {
-                    weather.refreshWeather();
-                    forecast=weather.getForecast();
-                    currently=weather.getCurrentConditions();
-                    updateForecast(weather.getForecast());
-                    updateCurrentConditions(weather.getCurrentConditions());
+                    {
+                        boolean result=weather.refreshWeather();
+                        if(result==true)
+                        {
+                            forecast=weather.getForecast();
+                            currently=weather.getCurrentConditions();
+                            updateForecast(weather.getForecast());
+                            updateCurrentConditions(weather.getCurrentConditions());
+                            updateInterval=Setup.updateWeatherInterval();
+                        }
+                        else
+                        {
+                            currently=new CurrentConditions();
+                            updateCurrentConditions(currently);
+                            //reschedule the update interval for 5 minutes if refreshWeather fails
+                            updateInterval=5;
+                        }
+                    }
                 }
             };
             int startMin;
@@ -248,6 +264,6 @@ public class WeatherModel
             startMin=time.getMinute();        
             Timer timer=new Timer();
             //1000*60*interval converts milliseconds to minutes 
-             timer.scheduleAtFixedRate(task, startMin,1000 * 60 * Setup.updateWeatherInterval());
+             timer.scheduleAtFixedRate(task, startMin,1000 * 60 * updateInterval);
         }
 }

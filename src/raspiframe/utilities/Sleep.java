@@ -107,6 +107,7 @@ public class Sleep
         }
         //start the thread 
         Thread t=new Thread(new PutScreenToSleep(time_to_sleep,time_to_wake));
+        t.setName("Sleep & wakeup thread");
         t.start();
     }
     

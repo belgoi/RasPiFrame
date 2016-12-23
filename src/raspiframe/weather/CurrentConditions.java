@@ -19,7 +19,13 @@ public class CurrentConditions
     private LocalTime sunset;
     public CurrentConditions()
     {
-
+         this.currentTemp="NA";
+        this.feelsLike="NA";
+        this.relativeHumidity="NA";
+        this.sunrise=LocalTime.now();
+        this.sunset=LocalTime.now();
+        this.weatherCondition="Unknown";
+        this.windSpeed="NA";
     }
 
     public String getWindSpeed()

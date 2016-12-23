@@ -72,12 +72,12 @@ public class httpConnection
             }
             catch (IOException e)
             {
-                System.err.println(e);
+                System.err.println("httpConnection: getEntity: " + e);
             }
         }
         catch (ParseException e)
         {
-          System.err.println(e);  
+          System.err.println("httpConnection: ParseException: " + e);  
         }
         return entityToString;
     }

@@ -66,7 +66,7 @@ public class WeatherIcon
         }
         catch(InvalidPathException e)
         {
-            System.err.println(e);
+            System.err.println("WeatherIcon: WeatherIcon constructor: " + e);
         }
     }
     
@@ -104,7 +104,7 @@ public class WeatherIcon
         }
         catch (IOException | ParseException e)
         {
-           System.err.println(e);
+           System.err.println("WeatherIcon: loadIconMap: " + e);
         }
     }
     //only used within the class, therefore access is limited to private
@@ -129,7 +129,7 @@ public class WeatherIcon
         }
         catch(InvalidPathException e)
         {
-            System.err.println(e);
+            System.err.println("WeatherIcon: setWeatherIcon: " + e);
         }
     }
 }
