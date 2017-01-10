@@ -49,7 +49,7 @@ public class ImageLoader
             String extension;
             if (!name.startsWith("default")) //excludes the directory with the default image
             {
-                extension=name.substring(name.lastIndexOf("."));
+                extension=name.substring(name.lastIndexOf(".")).toLowerCase();
                 if (extension.equals(".jpg") || extension.equals(".png"))
                     return true;
             }
