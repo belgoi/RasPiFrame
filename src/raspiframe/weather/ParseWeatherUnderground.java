@@ -67,8 +67,17 @@ public class ParseWeatherUnderground
                 {
                     //if wind gusts are 0 mph then the API returns a long rather than a string resulting in a cast exception
                     //so we cast it here since wind gusts should be greater than 0
-                    String windGusts=(String)currently.get("wind_gust_mph");                
-                    conditions.setWindSpeed(windSpeed.equals(windGusts)?windSpeed + " mph":windSpeed +" - " + windGusts + " mph " + windDirection);
+                    try
+                    {
+                        String windGusts=(String)currently.get("wind_gust_mph");                
+                        conditions.setWindSpeed(windSpeed.equals(windGusts)?windSpeed + " mph":windSpeed +" - " + windGusts + " mph " + windDirection);
+                    }
+                    //if wind gusts are 0, the API once again returns a long resulting in a cast exception
+                    //unlike before, there isn't any easy to catch it and avoid using the try catch
+                    catch(ClassCastException e)
+                    {
+                        conditions.setWindSpeed(windSpeed + " mph");
+                    }
                 }
                 
                 Double feelsLike=Double.parseDouble((String)currently.get("feelslike_f"));                    
