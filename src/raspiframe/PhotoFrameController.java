@@ -93,8 +93,6 @@ public class PhotoFrameController implements Initializable
         this();
         this.model=model;
         this.weatherModel=weatherModel;
-     //   this.photoFrameRoot.setPrefHeight(450);
-     //   this.photoFrameRoot.setPrefWidth(800);
     }
   
     @Override
@@ -112,14 +110,7 @@ public class PhotoFrameController implements Initializable
                     if((change.wasAdded()) || change.wasRemoved())
                         //copy the pictures over to the array that will be used in the slideshow
                     {
-                        //pictures.clear();
                         pictures=model.getObservablePhotoList();
-                        //if there are no pictures then a default picture will be displayed
-                   //   if (pictures.isEmpty())
-                   //     {
-                    //        String imgUri=Paths.get(Setup.imageDirectory()+"/default/").toUri().toString();
-                    //        pictures.add(new myImageView("default",new Image(imgUri+"default.png",Setup.screenWidth(),Setup.screenHeight(),false,false)));
-                    //    }
                     }
             }
         });
