@@ -28,6 +28,8 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.LongProperty;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import java.io.File;
@@ -66,6 +68,7 @@ public final class Setup
     private final static DoubleProperty DISPLAYTIME=new SimpleDoubleProperty();
     private final static DoubleProperty FADEINLENGTH=new SimpleDoubleProperty();
     private final static DoubleProperty FADEOUTLENGTH=new SimpleDoubleProperty();
+    private final static BooleanProperty PRESERVE_ASPECT_RATIO = new SimpleBooleanProperty();
     private final static StringProperty LOCATION = new SimpleStringProperty();
     private final static StringProperty TIME_TO_SLEEP = new SimpleStringProperty();
     private final static StringProperty TIME_TO_WAKE=new SimpleStringProperty();
@@ -136,7 +139,10 @@ public final class Setup
          {
              return FADEOUTLENGTH.get();
          }
-  
+         public static final Boolean preserveAspectRatio()
+         {
+             return PRESERVE_ASPECT_RATIO.get();
+         }
          public static final String weatherLocation()
          {            
              return LOCATION.get();
@@ -149,7 +155,17 @@ public final class Setup
          {
              return TIME_TO_SLEEP.get();
          }
-
+         private static boolean validateTime(String time)
+         {
+                int hour=Integer.parseInt(time.substring(0,time.indexOf(":")));
+                int min=Integer.parseInt(time.substring(time.indexOf(":")+1,time.length()));
+                //wakeHour=Integer.parseInt(timeToWake.substring(0,timeToWake.indexOf(":")));
+               // wakeMin=Integer.parseInt(timeToWake.substring(timeToWake.indexOf(":")+1,timeToWake.length()));
+               if (hour >0 && hour <24)
+                   if (min >=0 && min <60)
+                       return true;
+               return false;
+         }
          private static void readJsonFile(String configFilePath)
          {
             JSONObject setupObject;
@@ -172,9 +188,14 @@ public final class Setup
          DISPLAYTIME.set((Double)setupObject.get("display_time"));
          FADEINLENGTH.set((Double)setupObject.get("fadein"));
          FADEOUTLENGTH.set((Double)setupObject.get("fadeout"));
+         PRESERVE_ASPECT_RATIO.set((Boolean)setupObject.get("preserve_aspect_ratio"));
          LOCATION.set((String)setupObject.get("location"));
-         TIME_TO_SLEEP.set((String)setupObject.get("time_to_sleep"));
-         TIME_TO_WAKE.set((String)setupObject.get("time_to_wake"));
+            //validate time to sleep
+            String time=((String)setupObject.get("time_to_sleep"));
+         TIME_TO_SLEEP.set(validateTime(time)? time:"00:00");
+            //validate time to wake
+            time=((String)setupObject.get("time_to_wake"));
+         TIME_TO_WAKE.set(validateTime(time)?time:"00:00");
          WEATHERAPIKEY.set((String)setupObject.get("weather_api_key"));
          UPDATEWEATHERINTERVAL.set((Long)setupObject.get("update_weather_interval"));
      }

@@ -93,6 +93,8 @@ public class PhotoFrameController implements Initializable
         this();
         this.model=model;
         this.weatherModel=weatherModel;
+     //   this.photoFrameRoot.setPrefHeight(450);
+     //   this.photoFrameRoot.setPrefWidth(800);
     }
   
     @Override

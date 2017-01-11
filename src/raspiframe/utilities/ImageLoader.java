@@ -79,11 +79,46 @@ public class ImageLoader
         {
             for (String file:fileNames)      
                 if (validateFile(file))
-                    images.add(new myImageView(file,new Image(imgUri+file,Setup.screenWidth(),Setup.screenHeight(),false,false)));
+                {
+                    if (Setup.preserveAspectRatio())
+                        images.add(centerImage(imgUri,file));
+                    else
+                        images.add(new myImageView(file,new Image(imgUri+file,Setup.screenWidth(),Setup.screenHeight(),false,false)));
+                }
         }
 
     }
-    
+    public myImageView centerImage(String imgUri,String fileName)
+    {
+        myImageView imageView;
+        Image image=new Image(imgUri+fileName);
+        //determine ratios used to reduce the picture to fit inside the screen while preserving the aspect ratio
+        double widthRatio=Setup.screenWidth()/image.getWidth();
+        double heightRatio=Setup.screenHeight()/image.getHeight();
+        
+        double reduceBy=0;
+        
+        if (widthRatio >= heightRatio)
+             //the picture's height is reduced down to screen height while the width is 
+            //multiplied by reduceBy to maintain aspect ratio, thereby centering it horizontally
+            reduceBy=heightRatio;
+        else
+            //the picture's width is reduced down to screen width while the height is 
+            //multiplied by reduceBy to maintain aspect ratio, thereby centering it vertically
+            reduceBy=widthRatio;
+        
+        //resize and position image in imageView
+        double width=image.getWidth()*reduceBy;
+        double height=image.getHeight()*reduceBy;
+     
+        imageView=new myImageView(fileName,new Image(imgUri+fileName,width,height,true,false));
+        
+        double setX=Setup.screenWidth()/2;
+        double setY=Setup.screenHeight()/2;
+        imageView.setX((Setup.screenWidth()-width)/2);
+        imageView.setY((Setup.screenHeight()-height)/2);
+        return imageView;
+    }
     //Returns an array with all of the .png and .jpg files in the image directory
     public String[] getFileNames()
     {
