@@ -92,8 +92,6 @@ public class PhotoFrameController implements Initializable
     {
         this();
         this.model=model;
-        this.weatherModel=weatherModel;
-        //test
     }
   
     @Override
