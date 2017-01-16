@@ -108,7 +108,7 @@ public class PhotoFrameModel
             //sets when the screen goes to sleep and wakes up
             //Only works on the raspberry pi
             Sleep sleep=new Sleep();
-            sleep.putToSleep(Setup.timeToSleep(), Setup.timeToWake());
+            sleep.scheduleSleep(Setup.timeToSleep(), Setup.timeToWake());
         }
         public void loadImgFiles()
         {

@@ -41,16 +41,16 @@ public class Sleep
     public static boolean isAsleep;  
     
 
-    public void putToSleep(LocalTime time_to_sleep,LocalTime time_to_wake)
+    public void scheduleSleep(LocalTime time_to_sleep,LocalTime time_to_wake)
     {
-        class PutScreenToSleep implements Runnable
+        class PutToSleep implements Runnable
         {
             private final LocalTime timeToSleep;
             private final LocalTime timeToWake;
             private LocalDateTime wakeUpTime;
             private LocalDateTime sleepTime;
             private LocalDate lastSleep;
-            PutScreenToSleep(LocalTime timeToSleep,LocalTime timeToWake)
+            PutToSleep(LocalTime timeToSleep,LocalTime timeToWake)
             {
                 this.timeToSleep=timeToSleep;
                 this.timeToWake=timeToWake;
@@ -62,10 +62,9 @@ public class Sleep
            private void setSleepSchedule()
            {
                 LocalDate today=LocalDate.now();
-               LocalDate yesterday = today.minusDays(1);
-               LocalDate tomorrow=today.plusDays(1);
-                this.sleepTime=timeToSleep.atDate(today);
-
+                LocalDate yesterday = today.minusDays(1);
+                LocalDate tomorrow=today.plusDays(1);
+             
                 if (timeToWake.isBefore(timeToSleep))
                 {
                     //Wake up is next day
@@ -82,9 +81,7 @@ public class Sleep
                 {
                     this.sleepTime=timeToSleep.atDate(tomorrow);
                     this.wakeUpTime=timeToWake.atDate(tomorrow);
-                }
-
-                    
+                }                   
             }
             public void run()
             {
@@ -135,7 +132,6 @@ public class Sleep
                                 System.err.println(e);
                             }
                             System.out.println("waking up");
-
                         }
                 }   
         }
@@ -143,7 +139,7 @@ public class Sleep
         try
         {
             //start the thread 
-            Thread t=new Thread(new PutScreenToSleep(time_to_sleep,time_to_wake));
+            Thread t=new Thread(new PutToSleep(time_to_sleep,time_to_wake));
             t.setName("Sleep & wakeup thread");
             t.start();
         }
