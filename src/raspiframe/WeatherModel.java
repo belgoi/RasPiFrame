@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import raspiframe.utilities.Setup;
+import raspiframe.utilities.Sleep;
 import raspiframe.weather.ForecastData;
 import raspiframe.weather.CurrentConditions;
 import raspiframe.weather.IWeather;
@@ -58,6 +59,7 @@ public class WeatherModel
     private CurrentConditions currently=new CurrentConditions();
     private IWeather weather;
     private Map<String,String> weatherData;
+    private StringProperty day0LabelString=new SimpleStringProperty();
     private StringProperty day1LabelString=new SimpleStringProperty();
     private StringProperty day2LabelString=new SimpleStringProperty();
     private StringProperty day3LabelString=new SimpleStringProperty();
@@ -95,6 +97,10 @@ public class WeatherModel
     public ObjectProperty<Image> day0Icon()
     {
         return day0IconImage;
+    }
+    public StringProperty day0Label()
+    {
+        return day0LabelString;
     }
     public StringProperty day0High()
     {
@@ -203,6 +209,7 @@ public class WeatherModel
             {
                 if (entry.getKey().isEqual(today))
                 {
+                    day0LabelString.set("Today");
                     day0HighString.set(entry.getValue().getExpectedHighTempFahrenheit());
                     day0LowString.set(entry.getValue().getExpectedLowTempFahrenheit());
                     day0IconImage.set(entry.getValue().getWeatherIcon());                
@@ -241,7 +248,10 @@ public class WeatherModel
                 public void run()
                 {
                     {
+                        if(!Sleep.isAsleep)
+                        {
                             boolean result=weather.refreshWeather();
+                           // result=false;
                             if(result==true)
                             {
                                 forecast=weather.getForecast();
@@ -257,6 +267,7 @@ public class WeatherModel
                                 //reschedule the update interval for 5 minutes if refreshWeather fails
                                 updateInterval=5;
                             }
+                        }
                     }
                 }
             };

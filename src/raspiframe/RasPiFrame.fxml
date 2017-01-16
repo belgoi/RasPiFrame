@@ -46,7 +46,7 @@
                </rowConstraints>
                <children>
                   <ImageView fx:id="day0Icon" fitHeight="194.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.rowSpan="2" GridPane.valignment="CENTER" />
-                  <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Today" textAlignment="CENTER" wrappingWidth="67.13671875" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.valignment="BOTTOM">
+                  <Text fx:id="day0Label" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="" textAlignment="CENTER" wrappingWidth="67.13671875" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.valignment="BOTTOM">
                      <font>
                         <Font name="Open Sans Extrabold" size="16.0" />
                      </font>
@@ -64,7 +64,7 @@
                         <Font name="Open Sans Extrabold" size="16.0" />
                      </font>
                   </Text>
-                  <Text fx:id="day1Label" fill="WHITE" layoutX="18.0" layoutY="33.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Day 1" textAlignment="CENTER" wrappingWidth="50.13671875" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="BOTTOM">
+                  <Text fx:id="day1Label" fill="WHITE" layoutX="18.0" layoutY="33.0" strokeType="OUTSIDE" strokeWidth="0.0" text="" textAlignment="CENTER" wrappingWidth="50.13671875" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="BOTTOM">
                      <font>
                         <Font name="Open Sans Extrabold" size="16.0" />
                      </font>
