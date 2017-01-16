@@ -40,7 +40,6 @@ public class Sleep
 {
     public static boolean isAsleep;  
     
-
     public void scheduleSleep(LocalTime time_to_sleep,LocalTime time_to_wake)
     {
         class PutToSleep implements Runnable
