@@ -258,14 +258,11 @@ public class WeatherModel
                                 currently=weather.getCurrentConditions();
                                 updateForecast(weather.getForecast());
                                 updateCurrentConditions(weather.getCurrentConditions());
-                                updateInterval=Setup.updateWeatherInterval();
                             }
                             else
                             {
                                 currently=new CurrentConditions();
                                 updateCurrentConditions(currently);
-                                //reschedule the update interval for 5 minutes if refreshWeather fails
-                                updateInterval=5;
                             }
                         }
                     }
