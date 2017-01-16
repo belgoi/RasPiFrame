@@ -60,7 +60,7 @@ public class ImageLoader
     public ImageLoader(){}
     
     //ensures that the given filename exists in the image directory
-    public boolean validateFile(String filename)
+    private boolean validateFile(String filename)
     {
         //Makes sure the passed filename exists, returns a boolean
         File file=new File(Setup.imageDirectory()+"/" + filename);
@@ -88,7 +88,7 @@ public class ImageLoader
         }
 
     }
-    public myImageView centerImage(String imgUri,String fileName)
+    private myImageView centerImage(String imgUri,String fileName)
     {
         myImageView imageView;
         Image image=new Image(imgUri+fileName);
@@ -97,24 +97,18 @@ public class ImageLoader
         double heightRatio=Setup.screenHeight()/image.getHeight();
         
         double reduceBy=0;
-        
-        if (widthRatio >= heightRatio)
-             //the picture's height is reduced down to screen height while the width is 
-            //multiplied by reduceBy to maintain aspect ratio, thereby centering it horizontally
-            reduceBy=heightRatio;
-        else
-            //the picture's width is reduced down to screen width while the height is 
-            //multiplied by reduceBy to maintain aspect ratio, thereby centering it vertically
-            reduceBy=widthRatio;
+        //the picture's height is reduced down to screen height while the width is 
+        //multiplied by reduceBy to maintain aspect ratio
+        //the picture's width is reduced down to screen width while the height is 
+        //multiplied by reduceBy to maintain aspect ratio
+        reduceBy=(widthRatio >= heightRatio)?heightRatio:widthRatio;
         
         //resize and position image in imageView
         double width=image.getWidth()*reduceBy;
         double height=image.getHeight()*reduceBy;
      
         imageView=new myImageView(fileName,new Image(imgUri+fileName,width,height,true,false));
-        
-        double setX=Setup.screenWidth()/2;
-        double setY=Setup.screenHeight()/2;
+        //center the image
         imageView.setX((Setup.screenWidth()-width)/2);
         imageView.setY((Setup.screenHeight()-height)/2);
         return imageView;

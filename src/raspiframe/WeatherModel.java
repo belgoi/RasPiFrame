@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import raspiframe.utilities.Setup;
+import raspiframe.utilities.Sleep;
 import raspiframe.weather.ForecastData;
 import raspiframe.weather.CurrentConditions;
 import raspiframe.weather.IWeather;
@@ -58,6 +59,7 @@ public class WeatherModel
     private CurrentConditions currently=new CurrentConditions();
     private IWeather weather;
     private Map<String,String> weatherData;
+    private StringProperty day0LabelString=new SimpleStringProperty();
     private StringProperty day1LabelString=new SimpleStringProperty();
     private StringProperty day2LabelString=new SimpleStringProperty();
     private StringProperty day3LabelString=new SimpleStringProperty();
@@ -95,6 +97,10 @@ public class WeatherModel
     public ObjectProperty<Image> day0Icon()
     {
         return day0IconImage;
+    }
+    public StringProperty day0Label()
+    {
+        return day0LabelString;
     }
     public StringProperty day0High()
     {
@@ -176,6 +182,7 @@ public class WeatherModel
     {
         return feelsLike; 
     }
+  
     //set the values for the current conditions. The properties are bound to the controller
     private void updateCurrentConditions(CurrentConditions currently)
     {
@@ -202,6 +209,7 @@ public class WeatherModel
             {
                 if (entry.getKey().isEqual(today))
                 {
+                    day0LabelString.set("Today");
                     day0HighString.set(entry.getValue().getExpectedHighTempFahrenheit());
                     day0LowString.set(entry.getValue().getExpectedLowTempFahrenheit());
                     day0IconImage.set(entry.getValue().getWeatherIcon());                
@@ -240,30 +248,40 @@ public class WeatherModel
                 public void run()
                 {
                     {
-                        boolean result=weather.refreshWeather();
-                        if(result==true)
+                        if(!Sleep.isAsleep)
                         {
-                            forecast=weather.getForecast();
-                            currently=weather.getCurrentConditions();
-                            updateForecast(weather.getForecast());
-                            updateCurrentConditions(weather.getCurrentConditions());
-                            updateInterval=Setup.updateWeatherInterval();
-                        }
-                        else
-                        {
-                            currently=new CurrentConditions();
-                            updateCurrentConditions(currently);
-                            //reschedule the update interval for 5 minutes if refreshWeather fails
-                            updateInterval=5;
+                            boolean result=weather.refreshWeather();
+                           // result=false;
+                            if(result==true)
+                            {
+                                forecast=weather.getForecast();
+                                currently=weather.getCurrentConditions();
+                                updateForecast(weather.getForecast());
+                                updateCurrentConditions(weather.getCurrentConditions());
+                            }
+                            else
+                            {
+                                currently=new CurrentConditions();
+                                updateCurrentConditions(currently);
+                            }
                         }
                     }
                 }
             };
-            int startMin;
-            LocalTime time=LocalTime.now();
-            startMin=time.getMinute();        
-            Timer timer=new Timer();
-            //1000*60*interval converts milliseconds to minutes 
-             timer.scheduleAtFixedRate(task, startMin,1000 * 60 * updateInterval);
+            try
+            {
+                int startMin;
+                LocalTime time=LocalTime.now();
+                startMin=time.getMinute();        
+                Timer timer=new Timer();
+                //1000*60*interval converts milliseconds to minutes 
+                timer.scheduleAtFixedRate(task, startMin,1000 * 60 * updateInterval);
+            }
+            catch(Exception e)
+            {
+                System.err.println("Weather thread has encountered an exception");
+                System.err.println(e);
+            }
+             
         }
 }

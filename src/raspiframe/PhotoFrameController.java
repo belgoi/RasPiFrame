@@ -66,6 +66,7 @@ public class PhotoFrameController implements Initializable
     @FXML private ImageView day0Icon;
     @FXML private Text day0High;
     @FXML private Text day0Low;
+    @FXML private Text day0Label;
     @FXML private Text day1Label;
     @FXML private ImageView day1Icon;
     @FXML private Text day1High;
@@ -130,6 +131,7 @@ public class PhotoFrameController implements Initializable
         day0High.textProperty().bindBidirectional(weatherModel.day0High());
         day0Low.textProperty().bindBidirectional(weatherModel.day0Low());
         day0Icon.imageProperty().bindBidirectional(weatherModel.day0Icon());
+        day0Label.textProperty().bindBidirectional(weatherModel.day0Label());
         day1Label.textProperty().bindBidirectional(weatherModel.day1Label());
         day1High.textProperty().bindBidirectional(weatherModel.day1High());
         day1Low.textProperty().bindBidirectional(weatherModel.day1Low());

@@ -89,19 +89,26 @@ public class PhotoFrameModel
                    dateString.set(clock.getDate());
                 }
             };
-            int startMin;
-            LocalTime time=LocalTime.now();
-            startMin=time.getMinute();        
-            Timer timer=new Timer();
-            timer.scheduleAtFixedRate(task, startMin,1000);
+            try
+            {
+                int startMin;
+                LocalTime time=LocalTime.now();
+                startMin=time.getMinute();        
+                Timer timer=new Timer();
+                timer.scheduleAtFixedRate(task, startMin,1000);
+            }
+            catch (Exception e)
+            {
+                System.err.println("Clock thread has encountered an exception");
+                System.err.println(e);
+            }
         }
         private void setSleep()
         {
             //sets when the screen goes to sleep and wakes up
             //Only works on the raspberry pi
             Sleep sleep=new Sleep();
-            if(Setup.os().equals("Linux"))
-                sleep.putToSleep(Setup.timeToSleep(), Setup.timeToWake());
+            sleep.scheduleSleep(Setup.timeToSleep(), Setup.timeToWake());
         }
         public void loadImgFiles()
         {
@@ -115,15 +122,5 @@ public class PhotoFrameModel
              DirectoryWatcher watcher=new DirectoryWatcher();
                     watcher.watchImgDirectory(Setup.imageDirectory(),observablePhotoList);
         }
-
-       /* private String getSetupFilePath()
-        {
-            String path=new String();
-            if (os.equals("Linux"))
-                path="/home/pi/RasPiFrame/config/config.json";
-            else if (os.contains("Windows"))
-                path="C:/RasPiFrame/config.json";
-        
-            return path;
-        }*/          
+         
 }
