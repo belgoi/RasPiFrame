@@ -176,6 +176,7 @@ public class WeatherModel
     {
         return feelsLike; 
     }
+  
     //set the values for the current conditions. The properties are bound to the controller
     private void updateCurrentConditions(CurrentConditions currently)
     {
@@ -240,30 +241,39 @@ public class WeatherModel
                 public void run()
                 {
                     {
-                        boolean result=weather.refreshWeather();
-                        if(result==true)
-                        {
-                            forecast=weather.getForecast();
-                            currently=weather.getCurrentConditions();
-                            updateForecast(weather.getForecast());
-                            updateCurrentConditions(weather.getCurrentConditions());
-                            updateInterval=Setup.updateWeatherInterval();
-                        }
-                        else
-                        {
-                            currently=new CurrentConditions();
-                            updateCurrentConditions(currently);
-                            //reschedule the update interval for 5 minutes if refreshWeather fails
-                            updateInterval=5;
-                        }
+                            boolean result=weather.refreshWeather();
+                            if(result==true)
+                            {
+                                forecast=weather.getForecast();
+                                currently=weather.getCurrentConditions();
+                                updateForecast(weather.getForecast());
+                                updateCurrentConditions(weather.getCurrentConditions());
+                                updateInterval=Setup.updateWeatherInterval();
+                            }
+                            else
+                            {
+                                currently=new CurrentConditions();
+                                updateCurrentConditions(currently);
+                                //reschedule the update interval for 5 minutes if refreshWeather fails
+                                updateInterval=5;
+                            }
                     }
                 }
             };
-            int startMin;
-            LocalTime time=LocalTime.now();
-            startMin=time.getMinute();        
-            Timer timer=new Timer();
-            //1000*60*interval converts milliseconds to minutes 
-             timer.scheduleAtFixedRate(task, startMin,1000 * 60 * updateInterval);
+            try
+            {
+                int startMin;
+                LocalTime time=LocalTime.now();
+                startMin=time.getMinute();        
+                Timer timer=new Timer();
+                //1000*60*interval converts milliseconds to minutes 
+                timer.scheduleAtFixedRate(task, startMin,1000 * 60 * updateInterval);
+            }
+            catch(Exception e)
+            {
+                System.err.println("Weather thread has encountered an exception");
+                System.err.println(e);
+            }
+             
         }
 }

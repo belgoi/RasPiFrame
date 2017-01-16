@@ -23,6 +23,8 @@
  */
 package raspiframe.utilities;
 import java.time.LocalTime;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 /**
  *
  * @author David Hinchliffe <belgoi@gmail.com>
@@ -36,68 +38,101 @@ import java.time.LocalTime;
  */
 public class Sleep 
 {
-        
+    public static boolean isAsleep;  
+    
 
-    public void putToSleep(String time_to_sleep,String time_to_wake)
+    public void putToSleep(LocalTime time_to_sleep,LocalTime time_to_wake)
     {
         class PutScreenToSleep implements Runnable
         {
-
-            private final int sleepHour;
-            private final int sleepMin;
-            private final int wakeHour;
-            private final int wakeMin;
-            
-            PutScreenToSleep(String timeToSleep,String timeToWake)
+            private final LocalTime timeToSleep;
+            private final LocalTime timeToWake;
+            private LocalDateTime wakeUpTime;
+            private LocalDateTime sleepTime;
+            private LocalDate lastSleep;
+            PutScreenToSleep(LocalTime timeToSleep,LocalTime timeToWake)
             {
-                sleepHour=Integer.parseInt(timeToSleep.substring(0,timeToSleep.indexOf(":")));
-                sleepMin=Integer.parseInt(timeToSleep.substring(timeToSleep.indexOf(":")+1,timeToSleep.length()));
-                wakeHour=Integer.parseInt(timeToWake.substring(0,timeToWake.indexOf(":")));
-                wakeMin=Integer.parseInt(timeToWake.substring(timeToWake.indexOf(":")+1,timeToWake.length()));
-
+                this.timeToSleep=timeToSleep;
+                this.timeToWake=timeToWake;
+                LocalDate yesterday = LocalDate.now().minusDays(1);
+                this.lastSleep=yesterday;
+                setSleepSchedule();
+                
            }
+           private void setSleepSchedule()
+           {
+                LocalDate today=LocalDate.now();
+               LocalDate yesterday = today.minusDays(1);
+               LocalDate tomorrow=today.plusDays(1);
+                this.sleepTime=timeToSleep.atDate(today);
+
+                if (timeToWake.isBefore(timeToSleep))
+                {
+                    //Wake up is next day
+                    this.sleepTime=timeToSleep.atDate(today);
+                    this.wakeUpTime=timeToWake.atDate(tomorrow);
+                }
+                else if (lastSleep.equals(yesterday))
+                {
+                    //Wake up is same day
+                    this.sleepTime=timeToSleep.atDate(today);
+                    this.wakeUpTime=timeToWake.atDate(today);
+                }
+                else if (lastSleep.equals(today))
+                {
+                    this.sleepTime=timeToSleep.atDate(tomorrow);
+                    this.wakeUpTime=timeToWake.atDate(tomorrow);
+                }
+
+                    
+            }
             public void run()
             {
-                boolean awake=true;
-                boolean asleep=false;
-                LocalTime time;
+                LocalDateTime currentTime;
                 while (true)
                 {
-                    time=LocalTime.now();
-                        if ((time.getHour()==sleepHour) && (time.getMinute() == sleepMin) && awake)
+                    currentTime=LocalDateTime.now();
+                        if (currentTime.isAfter(this.sleepTime) && currentTime.isBefore(wakeUpTime)&&!isAsleep)
                         {
-                            awake=false;
-                            asleep=true;
+                            isAsleep=true;
+                            lastSleep=LocalDate.now();
                             try
-                            {
-                                //path to linux script to turn off the backlight
-                                String scriptPath=new String("/home/pi/RasPiFrame/scripts/turnBacklightOff");
-                                Runtime rt = Runtime.getRuntime();
-                                //execute script
-                                Process proc=rt.exec(scriptPath);
+                            {                            
+                                if(Setup.os().equals("Linux"))
+                                {
+                                    //path to linux script to turn off the backlight on the official
+                                    //raspberry pi screen
+                                    String scriptPath=new String("/home/pi/RasPiFrame/scripts/turnBacklightOff");
+                                    Runtime rt = Runtime.getRuntime();
+                                    //execute script
+                                    Process proc=rt.exec(scriptPath);
+                                }
                             }
                             catch (Exception e)
                             {
-                                e.printStackTrace();
+                                System.err.println(e);
                             }
                             System.out.println("putting to sleep");
-
                         }
-                        if ((time.getHour()==wakeHour) && (time.getMinute() == wakeMin) && asleep)
+                        else if(currentTime.isAfter(wakeUpTime) && isAsleep)
                         {
-                            asleep=false;
-                            awake=true;
+                            isAsleep=false;
+                            setSleepSchedule();
                             try
                             {
-                                //path to linux script to turn on the backlight
-                                String scriptPath=new String("/home/pi/RasPiFrame/scripts/turnBacklightOn");
-                                Runtime rt = Runtime.getRuntime();
-                                //execute script
-                                Process proc=rt.exec(scriptPath);
+                                if(Setup.os().equals("Linux"))
+                                {
+                                    //path to linux script to turn on the backlight on the official
+                                    //raspberry pi screen
+                                    String scriptPath=new String("/home/pi/RasPiFrame/scripts/turnBacklightOn");
+                                    Runtime rt = Runtime.getRuntime();
+                                    //execute script
+                                    Process proc=rt.exec(scriptPath);
+                                }
                             }
                             catch (Exception e)
                             {
-                                e.printStackTrace();
+                                System.err.println(e);
                             }
                             System.out.println("waking up");
 
@@ -105,10 +140,19 @@ public class Sleep
                 }   
         }
         }
-        //start the thread 
-        Thread t=new Thread(new PutScreenToSleep(time_to_sleep,time_to_wake));
-        t.setName("Sleep & wakeup thread");
-        t.start();
+        try
+        {
+            //start the thread 
+            Thread t=new Thread(new PutScreenToSleep(time_to_sleep,time_to_wake));
+            t.setName("Sleep & wakeup thread");
+            t.start();
+        }
+        catch (Exception e)
+        {
+            System.err.println("Sleep thread encountered an exception");
+            System.err.println(e);
+        }
     }
+
     
 }

@@ -127,8 +127,17 @@ public class DirectoryWatcher
                 }
             }
         }
+            try
+            {
                 Thread t=new Thread(new watchDirectory(imgDirectory,observablePhotoList));
                 t.setName("Directory Watcher thread");
                 t.start();
+            }
+            catch(Exception e)
+            {
+                System.err.println("Directory Watcher thread has encountered an exception");
+                System.err.println(e);
+                        
+            }
      }
 }

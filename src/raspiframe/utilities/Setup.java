@@ -38,6 +38,9 @@ import javafx.geometry.Rectangle2D;
 import javafx.stage.Screen;
 import java.io.IOException;
 import org.json.simple.parser.ParseException;
+import java.time.LocalTime;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 
 /**
  *
@@ -70,13 +73,16 @@ public final class Setup
     private final static DoubleProperty FADEOUTLENGTH=new SimpleDoubleProperty();
     private final static BooleanProperty PRESERVE_ASPECT_RATIO = new SimpleBooleanProperty();
     private final static StringProperty LOCATION = new SimpleStringProperty();
-    private final static StringProperty TIME_TO_SLEEP = new SimpleStringProperty();
-    private final static StringProperty TIME_TO_WAKE=new SimpleStringProperty();
+    //private final static StringProperty TIME_TO_SLEEP = new SimpleStringProperty();
+    //private final static StringProperty TIME_TO_WAKE=new SimpleStringProperty();
     private final static StringProperty OS=new SimpleStringProperty();
     private final static DoubleProperty SCREENWIDTH = new SimpleDoubleProperty();
     private final static DoubleProperty SCREENHEIGHT = new SimpleDoubleProperty();
     private final static StringProperty WEATHERAPIKEY = new SimpleStringProperty();
     private final static LongProperty UPDATEWEATHERINTERVAL = new SimpleLongProperty();
+    private  static LocalTime TIME_TO_SLEEP= LocalTime.of(0,0);
+    private  static LocalTime TIME_TO_WAKE=LocalTime.of(0, 0);
+    private static BooleanProperty IS_ASLEEP = new SimpleBooleanProperty();
 
     //static iniatilizer to setup all of the values in the static class
     static
@@ -92,6 +98,11 @@ public final class Setup
         SCREENHEIGHT.set(screenDimensions.getHeight());
         //read the config file
         readJsonFile(getSetupFilePath() + "/config.json");
+        LocalTime currentTime=LocalTime.now();
+        if (currentTime.isAfter(timeToSleep()) && currentTime.isBefore(timeToWake()))
+            IS_ASLEEP.set(false);
+        else if(currentTime.isAfter(timeToWake()))
+            IS_ASLEEP.set(true);
     }
         public static String getSetupFilePath()
         {
@@ -147,24 +158,40 @@ public final class Setup
          {            
              return LOCATION.get();
          }
-         public static final String timeToWake()
+         public static final LocalTime timeToWake()
          {
-             return TIME_TO_WAKE.get();
+             return TIME_TO_WAKE;
          }
-         public static final String timeToSleep()
+         public static final LocalTime timeToSleep()
          {
-             return TIME_TO_SLEEP.get();
+             return TIME_TO_SLEEP;
          }
-         private static boolean validateTime(String time)
+         /*public static final boolean isAsleep()
          {
+             return IS_ASLEEP.get();
+         }
+         public static final void setIsAsleep(boolean asleep)
+         {
+             IS_ASLEEP.set(asleep);
+         }
+*/
+         private static LocalTime validateTime(String time)
+         {
+             //TODO: clean up 
                 int hour=Integer.parseInt(time.substring(0,time.indexOf(":")));
                 int min=Integer.parseInt(time.substring(time.indexOf(":")+1,time.length()));
-                //wakeHour=Integer.parseInt(timeToWake.substring(0,timeToWake.indexOf(":")));
-               // wakeMin=Integer.parseInt(timeToWake.substring(timeToWake.indexOf(":")+1,timeToWake.length()));
-               if (hour >0 && hour <24)
-                   if (min >=0 && min <60)
-                       return true;
-               return false;
+                LocalTime convertTime;
+                LocalTime parseTime;
+               try 
+               {
+                    //convertTime=LocalTime.of(hour, min);
+                   parseTime=LocalTime.parse(time);
+               }
+               catch(DateTimeException e)
+               {
+                   parseTime=LocalTime.of(0,0);
+               }
+                return parseTime;
          }
          private static void readJsonFile(String configFilePath)
          {
@@ -181,6 +208,19 @@ public final class Setup
                 System.err.println(e);
             }
          }
+        /* private static void setSleep(LocalTime timeToSleep,LocalTime timeToWake)
+         {
+                LocalDate today=LocalDate.now();
+                LocalDate tomorrow=today.plusDays(1);
+                TIME_TO_SLEEP.atDate(today);
+                
+                if (timeToWake.isBefore(timeToSleep))
+                    //Wake up is next day
+                    TIME_TO_WAKE.atDate(tomorrow);
+                else
+                    //Wake up is same day
+                    TIME_TO_WAKE.atDate(today);
+         }*/
      private static void parseConfig(JSONObject setupObject)
      {
          //JSON object is stored as a HashMap but each value must be cast into the correct type
@@ -190,14 +230,19 @@ public final class Setup
          FADEOUTLENGTH.set((Double)setupObject.get("fadeout"));
          PRESERVE_ASPECT_RATIO.set((Boolean)setupObject.get("preserve_aspect_ratio"));
          LOCATION.set((String)setupObject.get("location"));
-            //validate time to sleep
-            String time=((String)setupObject.get("time_to_sleep"));
-         TIME_TO_SLEEP.set(validateTime(time)? time:"00:00");
-            //validate time to wake
-            time=((String)setupObject.get("time_to_wake"));
-         TIME_TO_WAKE.set(validateTime(time)?time:"00:00");
+
          WEATHERAPIKEY.set((String)setupObject.get("weather_api_key"));
          UPDATEWEATHERINTERVAL.set((Long)setupObject.get("update_weather_interval"));
+         //TODO: clean up
+        //String sleepTime=((String)setupObject.get("time_to_sleep"));
+         //String wakeupTime=((String)setupObject.get("time_to_wake"));
+         //setSleep(validateTime(sleepTime),validateTime(wakeupTime));
+             //validate time to sleep
+            String time=((String)setupObject.get("time_to_sleep"));
+         TIME_TO_SLEEP=(validateTime(time));
+            //validate time to wake
+            time=((String)setupObject.get("time_to_wake"));
+         TIME_TO_WAKE=(validateTime(time));
      }
 
 }
