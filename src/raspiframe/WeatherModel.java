@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import raspiframe.utilities.Setup;
-import raspiframe.utilities.Sleep;
+import raspiframe.sleep.Sleep;
 import raspiframe.weather.ForecastData;
 import raspiframe.weather.CurrentConditions;
 import raspiframe.weather.IWeather;
@@ -42,6 +42,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.image.Image;
+import raspiframe.utilities.Listener;
+import raspiframe.sleep.Sleep;
 
 /**
  *
@@ -53,7 +55,7 @@ import javafx.scene.image.Image;
  * in the controller.  
  */
 
-public class WeatherModel
+public class WeatherModel implements Listener
 {
     private Map<LocalDate,ForecastData> forecast=new HashMap<>();
     private CurrentConditions currently=new CurrentConditions();
@@ -82,17 +84,38 @@ public class WeatherModel
     private StringProperty relHumidity=new SimpleStringProperty();
     private ObjectProperty currentIcon=new SimpleObjectProperty();
     private StringProperty feelsLike=new SimpleStringProperty();
-    private long updateInterval;
+    private final long updateInterval;
+    private final long rescheduleInterval;
+    private WeatherTask weatherTask = new WeatherTask();
+    private boolean weatherRescheduled=false;
+    private final static int CONVERT_TO_MINUTES= 60*1000;
+    int pass=0;
+    Timer timer;
     
-    public WeatherModel()
+    public WeatherModel(Sleep sleep)
     {
         updateInterval=Setup.updateWeatherInterval();
+
+        rescheduleInterval=1;
         //instantiate the weather object with the weather API key and pass the location   
         weather = new WeatherUndergroundAPI(Setup.weatherApiKey());
         weather.setLocation(Setup.weatherLocation());
-       // weatherData=new HashMap<>();
-        long i=Setup.updateWeatherInterval();
-        startWeatherUpdate();
+      //  startWeatherUpdate();
+       // scheduleWeatherUpdate(Setup.updateWeatherInterval());
+       timer=new Timer(); 
+       updateWeather();
+       sleep.registerListener(this);
+    }
+    public void onAction(boolean isAsleep)
+    {
+        if (!isAsleep)
+        {
+            updateWeather();
+        }
+        else
+        {
+            cancelUpdates();
+        }
     }
     public ObjectProperty<Image> day0Icon()
     {
@@ -238,50 +261,66 @@ public class WeatherModel
             }
         }
     }
-    //starts the timer task to make the call to the weather API.  The timer fires according to the 
-    //interval defined in the setup file
-    private void startWeatherUpdate()
-        {
-           TimerTask task=new TimerTask()
-           {
-                @Override
-                public void run()
-                {
-                    {
-                        if(!Sleep.isAsleep)
-                        {
+    private void updateWeather()
+    {
+        long rescheduleWeatherInterval=0;
+        //if(!Sleep.isAsleep)
+                  //      {
                             boolean result=weather.refreshWeather();
-                           // result=false;
                             if(result==true)
                             {
                                 forecast=weather.getForecast();
                                 currently=weather.getCurrentConditions();
                                 updateForecast(weather.getForecast());
                                 updateCurrentConditions(weather.getCurrentConditions());
+                                scheduleWeatherUpdate(updateInterval * CONVERT_TO_MINUTES);
+                                //scheduleWeatherUpdate(1 * CONVERT_TO_MINUTES);
                             }
                             else
                             {
-                                currently=new CurrentConditions();
+                                //currently=new CurrentConditions();
                                 updateCurrentConditions(currently);
+                                rescheduleWeatherInterval=1; //in minutes
+                                cancelUpdates();
+                                scheduleWeatherUpdate(rescheduleWeatherInterval * CONVERT_TO_MINUTES) ;
+                                //scheduleWeatherUpdate(1 * CONVERT_TO_MINUTES);
                             }
-                        }
-                    }
-                }
-            };
-            try
+                   //     }
+    }
+    private class WeatherTask extends TimerTask
+    {
+        public void run()
+        {
+            Thread.currentThread().setName("Weather Update Thread");
+            updateWeather();
+
+        }
+    }
+    private void cancelUpdates()
+    {
+        timer.cancel();
+        timer.purge();
+        weatherTask.cancel();
+    }
+    private void scheduleWeatherUpdate(long updateDelay)
+    {
+        try
             {
-                int startMin;
-                LocalTime time=LocalTime.now();
-                startMin=time.getMinute();        
-                Timer timer=new Timer();
-                //1000*60*interval converts milliseconds to minutes 
-                timer.scheduleAtFixedRate(task, startMin,1000 * 60 * updateInterval);
+                cancelUpdates();
+                //timer.cancel();
+                //timer.purge();
+                timer=new Timer("WeatherUpdateTimer");
+                //weatherTask.cancel();
+                weatherTask=new WeatherTask();
+                timer.schedule(weatherTask, updateDelay);
             }
             catch(Exception e)
             {
                 System.err.println("Weather thread has encountered an exception");
                 System.err.println(e);
-            }
-             
-        }
+             }
+
+        
+                
+    }
 }

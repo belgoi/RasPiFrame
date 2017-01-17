@@ -25,7 +25,7 @@ package raspiframe;
 import java.time.LocalTime;
 import raspiframe.utilities.Setup;
 import raspiframe.utilities.ImageLoader;
-import raspiframe.utilities.Sleep;
+import raspiframe.sleep.Sleep;
 import raspiframe.utilities.DirectoryWatcher;
 import raspiframe.utilities.Clock;
 import javafx.collections.ObservableList;
@@ -59,7 +59,7 @@ public class PhotoFrameModel
             //the observableList for all of the photos 
             observablePhotoList=FXCollections.observableList(photoList);
             //sets when to put the screen to sleep
-            setSleep();
+           // setSleep();
             startClock();
  
         }
@@ -84,6 +84,7 @@ public class PhotoFrameModel
                 @Override
                 public void run()
                 {
+                    Thread.currentThread().setName("Clock");
                    Clock clock=new Clock();
                    timeString.set(clock.getTime());
                    dateString.set(clock.getDate());
@@ -94,7 +95,7 @@ public class PhotoFrameModel
                 int startMin;
                 LocalTime time=LocalTime.now();
                 startMin=time.getMinute();        
-                Timer timer=new Timer();
+                Timer timer=new Timer("Clock Timer");
                 timer.scheduleAtFixedRate(task, startMin,1000);
             }
             catch (Exception e)
@@ -103,13 +104,7 @@ public class PhotoFrameModel
                 System.err.println(e);
             }
         }
-        private void setSleep()
-        {
-            //sets when the screen goes to sleep and wakes up
-            //Only works on the raspberry pi
-            Sleep sleep=new Sleep();
-            sleep.scheduleSleep(Setup.timeToSleep(), Setup.timeToWake());
-        }
+
         public void loadImgFiles()
         {
             //load the image files. 

@@ -21,10 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package raspiframe.utilities;
+package raspiframe.sleep;
 import java.time.LocalTime;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import raspiframe.utilities.Setup;
+import raspiframe.utilities.Listener;
+import java.util.List;
+import java.util.ArrayList;
 /**
  *
  * @author David Hinchliffe <belgoi@gmail.com>
@@ -36,10 +40,33 @@ import java.time.LocalDateTime;
  *      sudo bash -c "echo 0 > /sys/class/backlight/rpi_backlight/bl_power" to turn on the backlight
  *  If a different screen is used then different scripts will probably have to be used.  
  */
-public class Sleep 
+public class Sleep implements Observable
 {
-    public static boolean isAsleep;  
-    
+    public static boolean isAsleep; 
+    private List<Listener> listeners;
+    public Sleep()
+    {
+        listeners=new ArrayList<>();
+    }
+    @Override
+    public void registerListener(Listener object)
+    {
+        listeners.add(object);
+    }
+    @Override
+    public void removeListener(Listener object)
+    {
+        if(listeners.contains(object))
+            listeners.remove(object);
+    }
+    @Override
+    public void onEvent()
+    {
+        for(Listener listener:listeners)
+        {
+            listener.onAction(isAsleep);
+        }
+    }
     public void scheduleSleep(LocalTime time_to_sleep,LocalTime time_to_wake)
     {
         class PutToSleep implements Runnable
@@ -57,7 +84,9 @@ public class Sleep
                 this.lastSleep=yesterday;
                 setSleepSchedule();
                 
-           }
+            }
+
+
            private void setSleepSchedule()
            {
                 LocalDate today=LocalDate.now();
@@ -92,6 +121,7 @@ public class Sleep
                         {
                             isAsleep=true;
                             lastSleep=LocalDate.now();
+                            onEvent();
                             try
                             {                            
                                 if(Setup.os().equals("Linux"))
@@ -114,6 +144,7 @@ public class Sleep
                         {
                             isAsleep=false;
                             setSleepSchedule();
+                            onEvent();
                             try
                             {
                                 if(Setup.os().equals("Linux"))
