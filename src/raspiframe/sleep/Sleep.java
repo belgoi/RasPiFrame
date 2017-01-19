@@ -26,7 +26,6 @@ import java.time.LocalTime;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import raspiframe.utilities.Setup;
-import raspiframe.utilities.Listener;
 import java.util.List;
 import java.util.ArrayList;
 /**
@@ -43,28 +42,30 @@ import java.util.ArrayList;
 public class Sleep implements Observable
 {
     public static boolean isAsleep; 
-    private List<Listener> listeners;
+    private List<SleepListener> listeners;
     public Sleep()
     {
         listeners=new ArrayList<>();
     }
+    //Overrides the 3 methods of the Observable interface.  Provides for the ability to add/remove
+    //listeners and to push messages to all listeners. 
     @Override
-    public void registerListener(Listener object)
+    public void addListener(SleepListener object)
     {
         listeners.add(object);
     }
     @Override
-    public void removeListener(Listener object)
+    public void removeListener(SleepListener object)
     {
         if(listeners.contains(object))
             listeners.remove(object);
     }
     @Override
-    public void onEvent()
+    public void onEvent(String eventMsg)
     {
-        for(Listener listener:listeners)
+        for(SleepListener listener:listeners)
         {
-            listener.onAction(isAsleep);
+            listener.onAction(eventMsg);
         }
     }
     public void scheduleSleep(LocalTime time_to_sleep,LocalTime time_to_wake)
@@ -75,13 +76,14 @@ public class Sleep implements Observable
             private final LocalTime timeToWake;
             private LocalDateTime wakeUpTime;
             private LocalDateTime sleepTime;
-            private LocalDate lastSleep;
+            private LocalDateTime lastSleep;
             PutToSleep(LocalTime timeToSleep,LocalTime timeToWake)
             {
                 this.timeToSleep=timeToSleep;
                 this.timeToWake=timeToWake;
                 LocalDate yesterday = LocalDate.now().minusDays(1);
-                this.lastSleep=yesterday;
+                //this.lastSleep=yesterday;
+                this.lastSleep=LocalDateTime.of(yesterday, timeToSleep);
                 setSleepSchedule();
                 
             }
@@ -92,23 +94,47 @@ public class Sleep implements Observable
                 LocalDate today=LocalDate.now();
                 LocalDate yesterday = today.minusDays(1);
                 LocalDate tomorrow=today.plusDays(1);
-             
+                //wakeup is normally scheduled for next day 
                 if (timeToWake.isBefore(timeToSleep))
                 {
-                    //Wake up is next day
-                    this.sleepTime=timeToSleep.atDate(today);
-                    this.wakeUpTime=timeToWake.atDate(tomorrow);
+                    if (LocalTime.now().isAfter(LocalTime.MAX) && LocalTime.now().isBefore(timeToWake))
+                    {
+                        //in case sleep gets interrupted, sleep can resume
+                        this.sleepTime=timeToSleep.atDate(yesterday);
+                        this.wakeUpTime=timeToWake.atDate(today);
+                    }
+                    else
+                    {
+                        //sleep went uninterrupted, normal scheduling can occur
+                        this.sleepTime=timeToSleep.atDate(today);
+                        this.wakeUpTime=timeToWake.atDate(tomorrow);
+                    }
                 }
-                else if (lastSleep.equals(yesterday))
+                //Sleep and wake are normally scheduled the same day
+                //timeToSleep->20:30 is before time to wake->22:30 occurs if sleep goes uninterrupted from previous day
+                else if (lastSleep.toLocalDate().equals(yesterday))
                 {
-                    //Wake up is same day
                     this.sleepTime=timeToSleep.atDate(today);
                     this.wakeUpTime=timeToWake.atDate(today);
                 }
-                else if (lastSleep.equals(today))
+                //time to sleep is sleep is before time to wake, occurs when sleep gets interrupted and time is after midnight
+                //making time to wake be before time to sleep
+                else if (lastSleep.toLocalDate().equals(today))
                 {
-                    this.sleepTime=timeToSleep.atDate(tomorrow);
-                    this.wakeUpTime=timeToWake.atDate(tomorrow);
+                    //if lastSleep occurred after midnight but before timeToWake i.e. sleep and wake happen same day
+                    if(lastSleep.toLocalTime().isAfter(LocalTime.MAX) && LocalTime.now().isBefore(timeToWake))
+                    {
+                        //want to make sure that sleep for today is scheduled
+                        this.sleepTime=timeToSleep.atDate(today);
+                        //and the next wakeuptime would be the next day
+                        this.wakeUpTime=timeToWake.atDate(tomorrow);
+                    }
+                    else
+                    {
+                        //normal schedule applies
+                        this.sleepTime=timeToSleep.atDate(tomorrow);
+                        this.wakeUpTime=timeToWake.atDate(tomorrow);
+                    }
                 }                   
             }
             public void run()
@@ -120,8 +146,8 @@ public class Sleep implements Observable
                         if (currentTime.isAfter(this.sleepTime) && currentTime.isBefore(wakeUpTime)&&!isAsleep)
                         {
                             isAsleep=true;
-                            lastSleep=LocalDate.now();
-                            onEvent();
+                           // lastSleep=LocalDate.now();
+                            lastSleep=LocalDateTime.now();
                             try
                             {                            
                                 if(Setup.os().equals("Linux"))
@@ -138,13 +164,14 @@ public class Sleep implements Observable
                             {
                                 System.err.println(e);
                             }
-                            System.out.println("putting to sleep");
+                            onEvent("Sleeping");
+                            System.out.println("going to sleep");
                         }
                         else if(currentTime.isAfter(wakeUpTime) && isAsleep)
                         {
                             isAsleep=false;
                             setSleepSchedule();
-                            onEvent();
+                            
                             try
                             {
                                 if(Setup.os().equals("Linux"))
@@ -161,6 +188,7 @@ public class Sleep implements Observable
                             {
                                 System.err.println(e);
                             }
+                            onEvent("WakingUp");
                             System.out.println("waking up");
                         }
                 }   

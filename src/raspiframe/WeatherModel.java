@@ -24,7 +24,6 @@
 package raspiframe;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.HashMap;
 import java.util.Locale;
@@ -32,7 +31,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import raspiframe.utilities.Setup;
-import raspiframe.sleep.Sleep;
 import raspiframe.weather.ForecastData;
 import raspiframe.weather.CurrentConditions;
 import raspiframe.weather.IWeather;
@@ -42,8 +40,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.image.Image;
-import raspiframe.utilities.Listener;
 import raspiframe.sleep.Sleep;
+import raspiframe.sleep.SleepListener;
 
 /**
  *
@@ -55,12 +53,11 @@ import raspiframe.sleep.Sleep;
  * in the controller.  
  */
 
-public class WeatherModel implements Listener
+public class WeatherModel implements SleepListener
 {
     private Map<LocalDate,ForecastData> forecast=new HashMap<>();
     private CurrentConditions currently=new CurrentConditions();
     private IWeather weather;
-    private Map<String,String> weatherData;
     private StringProperty day0LabelString=new SimpleStringProperty();
     private StringProperty day1LabelString=new SimpleStringProperty();
     private StringProperty day2LabelString=new SimpleStringProperty();
@@ -85,36 +82,41 @@ public class WeatherModel implements Listener
     private ObjectProperty currentIcon=new SimpleObjectProperty();
     private StringProperty feelsLike=new SimpleStringProperty();
     private final long updateInterval;
-    private final long rescheduleInterval;
+    private long rescheduleWeatherInterval;
     private WeatherTask weatherTask = new WeatherTask();
-    private boolean weatherRescheduled=false;
+   // private boolean weatherRescheduled=false;
     private final static int CONVERT_TO_MINUTES= 60*1000;
-    int pass=0;
     Timer timer;
     
     public WeatherModel(Sleep sleep)
     {
         updateInterval=Setup.updateWeatherInterval();
-
-        rescheduleInterval=1;
+        rescheduleWeatherInterval=1; //in minutes
         //instantiate the weather object with the weather API key and pass the location   
         weather = new WeatherUndergroundAPI(Setup.weatherApiKey());
         weather.setLocation(Setup.weatherLocation());
-      //  startWeatherUpdate();
-       // scheduleWeatherUpdate(Setup.updateWeatherInterval());
-       timer=new Timer(); 
-       updateWeather();
-       sleep.registerListener(this);
+        timer=new Timer(); 
+        updateWeather();
+        //register object to be an observer of the sleep object's events
+        registerListener(sleep);
     }
-    public void onAction(boolean isAsleep)
+    private void registerListener(Sleep sleep)
     {
-        if (!isAsleep)
+        sleep.addListener(this);
+    }
+    //Overrides the method onAction from the SleepListener interface
+    //Sets up an observer pattern between the Sleep object and WeatherModel object
+    //Lets the object know when it is sleepy time.  
+    @Override
+    public void onAction(String eventMsg)
+    {
+        if (eventMsg.equals("WakingUp"))
         {
             updateWeather();
         }
         else
         {
-            cancelUpdates();
+            cancelWeatherTimer();
         }
     }
     public ObjectProperty<Image> day0Icon()
@@ -263,7 +265,6 @@ public class WeatherModel implements Listener
     }
     private void updateWeather()
     {
-        long rescheduleWeatherInterval=0;
         //if(!Sleep.isAsleep)
                   //      {
                             boolean result=weather.refreshWeather();
@@ -274,16 +275,12 @@ public class WeatherModel implements Listener
                                 updateForecast(weather.getForecast());
                                 updateCurrentConditions(weather.getCurrentConditions());
                                 scheduleWeatherUpdate(updateInterval * CONVERT_TO_MINUTES);
-                                //scheduleWeatherUpdate(1 * CONVERT_TO_MINUTES);
                             }
                             else
                             {
                                 //currently=new CurrentConditions();
-                                updateCurrentConditions(currently);
-                                rescheduleWeatherInterval=1; //in minutes
-                                cancelUpdates();
+                                //updateCurrentConditions(currently);
                                 scheduleWeatherUpdate(rescheduleWeatherInterval * CONVERT_TO_MINUTES) ;
-                                //scheduleWeatherUpdate(1 * CONVERT_TO_MINUTES);
                             }
                    //     }
     }
@@ -296,7 +293,7 @@ public class WeatherModel implements Listener
 
         }
     }
-    private void cancelUpdates()
+    private void cancelWeatherTimer()
     {
         timer.cancel();
         timer.purge();
@@ -306,11 +303,8 @@ public class WeatherModel implements Listener
     {
         try
             {
-                cancelUpdates();
-                //timer.cancel();
-                //timer.purge();
+                cancelWeatherTimer();
                 timer=new Timer("WeatherUpdateTimer");
-                //weatherTask.cancel();
                 weatherTask=new WeatherTask();
                 timer.schedule(weatherTask, updateDelay);
             }

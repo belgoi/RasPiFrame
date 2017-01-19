@@ -39,7 +39,7 @@ import javafx.stage.Screen;
 import java.io.IOException;
 import org.json.simple.parser.ParseException;
 import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
+import java.time.DateTimeException;
 
 /**
  *
@@ -94,7 +94,7 @@ public final class Setup
         SCREENHEIGHT.set(screenDimensions.getHeight());
         //read the config file
         readJsonFile(getSetupFilePath() + "/config.json");
-        LocalTime currentTime=LocalTime.now();
+       // LocalTime currentTime=LocalTime.now();
     }
         public static String getSetupFilePath()
         {
@@ -159,19 +159,23 @@ public final class Setup
              return TIME_TO_SLEEP;
          }
          private static LocalTime validateTime(String time)
-         {
-             //accepts a time as a string and parses out the time into a LocalTime variable
-             //if parsing fails then a default time of 00:00 is assigned
-               LocalTime parseTime;
-               try 
-               {
-                   parseTime=LocalTime.parse(time);
-               }
-               catch(DateTimeParseException e)
-               {
-                   parseTime=LocalTime.of(0,0);
-               }
-                return parseTime;
+         {            
+            //accepts a time as a string and breaks out the hour and the minutes into integers. It
+            //then recomposes them into a localtime object. This avoids any problems with not having a 
+            //0 preceding hours of 0-9
+            //if it fails then a default time of 00:00 is assigned
+           int hour=Integer.parseInt(time.substring(0,time.indexOf(":")));
+           int min=Integer.parseInt(time.substring(time.indexOf(":")+1,time.length()));    
+           LocalTime parseTime;
+           try 
+           {
+               parseTime=LocalTime.of(hour, min);
+           }
+           catch(DateTimeException e)
+           {
+               parseTime=LocalTime.of(0,0);
+           }
+            return parseTime;
          }
          private static void readJsonFile(String configFilePath)
          {

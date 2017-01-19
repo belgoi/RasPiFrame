@@ -25,7 +25,6 @@ package raspiframe;
 import java.time.LocalTime;
 import raspiframe.utilities.Setup;
 import raspiframe.utilities.ImageLoader;
-import raspiframe.sleep.Sleep;
 import raspiframe.utilities.DirectoryWatcher;
 import raspiframe.utilities.Clock;
 import javafx.collections.ObservableList;
@@ -44,28 +43,24 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class PhotoFrameModel
 {
-        private final String os;
         private ObservableList<myImageView> observablePhotoList;
         private List<myImageView>photoList;
         private final StringProperty timeString=new SimpleStringProperty();
         private StringProperty dateString = new SimpleStringProperty();
+        private Clock clock;
         public PhotoFrameModel()
         {
-            os=System.getProperty("os.name");
-            //Instantiate the Setup object and set the values for the static variables
-           // new Setup(getSetupFilePath());
             //underlying arraylist for the observable photo list
             photoList=new ArrayList();
             //the observableList for all of the photos 
             observablePhotoList=FXCollections.observableList(photoList);
-            //sets when to put the screen to sleep
-           // setSleep();
+            clock=new Clock();
             startClock();
  
         }
         public StringProperty dateProperty()
         {
-            Clock clock=new Clock();
+           // Clock clock=new Clock();
             dateString.set(clock.getDate());
             return dateString;
         }
@@ -85,18 +80,15 @@ public class PhotoFrameModel
                 public void run()
                 {
                     Thread.currentThread().setName("Clock");
-                   Clock clock=new Clock();
                    timeString.set(clock.getTime());
                    dateString.set(clock.getDate());
                 }
             };
             try
-            {
-                int startMin;
-                LocalTime time=LocalTime.now();
-                startMin=time.getMinute();        
+            {  
                 Timer timer=new Timer("Clock Timer");
-                timer.scheduleAtFixedRate(task, startMin,1000);
+                //start timer now and execute every second
+                timer.scheduleAtFixedRate(task,0,1000);
             }
             catch (Exception e)
             {

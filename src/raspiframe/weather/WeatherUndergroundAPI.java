@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 package raspiframe.weather;
+import raspiframe.utilities.httpConnection;
 import java.util.Map;
 import java.time.LocalDate;
 import raspiframe.utilities.Setup;

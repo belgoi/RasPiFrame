@@ -21,13 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package raspiframe.utilities;
+package raspiframe.sleep;
 
 /**
  *
  * @author David Hinchliffe <belgoi@gmail.com>
  */
-public interface Listener
+public interface SleepListener
 {
-    public void onAction(boolean isAsleep);
+    public void onAction(String eventMsg);
 }

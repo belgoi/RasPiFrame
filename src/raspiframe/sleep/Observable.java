@@ -22,16 +22,16 @@
  * SOFTWARE.
  */
 package raspiframe.sleep;
-
-import raspiframe.utilities.Listener;
 /**
  *
  * @author David Hinchliffe <belgoi@gmail.com>
+ *  The observable interface for the Sleep object.  It sets up an observer pattern so that 
+ *  sleepy time can be broadcasted to all listeners.  
  */
 public interface Observable
 {
-    public void registerListener(Listener object);
-    public void removeListener(Listener object);
-    public void onEvent();
+    public void addListener(SleepListener object);
+    public void removeListener(SleepListener object);
+    public void onEvent(String eventMsg);
     
 }
