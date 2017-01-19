@@ -25,7 +25,6 @@ package raspiframe;
 import java.time.LocalTime;
 import raspiframe.utilities.Setup;
 import raspiframe.utilities.ImageLoader;
-import raspiframe.utilities.Sleep;
 import raspiframe.utilities.DirectoryWatcher;
 import raspiframe.utilities.Clock;
 import javafx.collections.ObservableList;
@@ -44,28 +43,24 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class PhotoFrameModel
 {
-        private final String os;
         private ObservableList<myImageView> observablePhotoList;
         private List<myImageView>photoList;
         private final StringProperty timeString=new SimpleStringProperty();
         private StringProperty dateString = new SimpleStringProperty();
+        private Clock clock;
         public PhotoFrameModel()
         {
-            os=System.getProperty("os.name");
-            //Instantiate the Setup object and set the values for the static variables
-           // new Setup(getSetupFilePath());
             //underlying arraylist for the observable photo list
             photoList=new ArrayList();
             //the observableList for all of the photos 
             observablePhotoList=FXCollections.observableList(photoList);
-            //sets when to put the screen to sleep
-            setSleep();
+            clock=new Clock();
             startClock();
  
         }
         public StringProperty dateProperty()
         {
-            Clock clock=new Clock();
+           // Clock clock=new Clock();
             dateString.set(clock.getDate());
             return dateString;
         }
@@ -84,18 +79,16 @@ public class PhotoFrameModel
                 @Override
                 public void run()
                 {
-                   Clock clock=new Clock();
+                    Thread.currentThread().setName("Clock");
                    timeString.set(clock.getTime());
                    dateString.set(clock.getDate());
                 }
             };
             try
-            {
-                int startMin;
-                LocalTime time=LocalTime.now();
-                startMin=time.getMinute();        
-                Timer timer=new Timer();
-                timer.scheduleAtFixedRate(task, startMin,1000);
+            {  
+                Timer timer=new Timer("Clock Timer");
+                //start timer now and execute every second
+                timer.scheduleAtFixedRate(task,0,1000);
             }
             catch (Exception e)
             {
@@ -103,13 +96,7 @@ public class PhotoFrameModel
                 System.err.println(e);
             }
         }
-        private void setSleep()
-        {
-            //sets when the screen goes to sleep and wakes up
-            //Only works on the raspberry pi
-            Sleep sleep=new Sleep();
-            sleep.scheduleSleep(Setup.timeToSleep(), Setup.timeToWake());
-        }
+
         public void loadImgFiles()
         {
             //load the image files. 

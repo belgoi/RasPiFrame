@@ -79,7 +79,6 @@ public class PhotoFrameController implements Initializable
     @FXML private ImageView day3Icon;
     @FXML private Text day3High;
     @FXML private Text day3Low;
-    //@FXML private ImageView 
     
     private PhotoFrameModel model;
     private WeatherModel weatherModel;

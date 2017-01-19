@@ -60,20 +60,19 @@ public class ParseWeatherUnderground
                 String windSpeed=((Double)currently.get("wind_mph")).toString();
                 String windString=(String)currently.get("wind_string");
                 String windDirection=formatDirection((String)currently.get("wind_dir"));       
-               //build the wind string to display on the overlay 
+               //build the wind string to display on the overlay
                 if (windString.equals("Calm"))
                     conditions.setWindSpeed("0 mph");
                 else
                 {
                     //if wind gusts are 0 mph then the API returns a long rather than a string resulting in a cast exception
-                    //so we cast it here since wind gusts should be greater than 0
                     try
                     {
                         String windGusts=(String)currently.get("wind_gust_mph");                
                         conditions.setWindSpeed(windSpeed.equals(windGusts)?windSpeed + " mph":windSpeed +" - " + windGusts + " mph " + windDirection);
                     }
-                    //if wind gusts are 0, the API once again returns a long resulting in a cast exception
-                    //unlike before, there isn't any easy to catch it and avoid using the try catch
+                    //if wind gusts are 0, the API returns a long resulting in a cast exception
+                    //unlike before, there isn't any easy way to catch it and avoid using the try catch
                     catch(ClassCastException e)
                     {
                         conditions.setWindSpeed(windSpeed + " mph");

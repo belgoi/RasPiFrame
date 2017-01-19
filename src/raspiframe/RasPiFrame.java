@@ -32,6 +32,7 @@ import raspiframe.utilities.Setup;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
+import raspiframe.sleep.Sleep;
 
 /**
  *
@@ -58,7 +59,11 @@ public class RasPiFrame extends Application
         FXMLLoader loader=new FXMLLoader(getClass().getResource("RasPiFrame.fxml"));       
         //setup the model
         PhotoFrameModel model = new PhotoFrameModel();
-        WeatherModel weatherModel=new WeatherModel();
+            //sets when the screen goes to sleep and wakes up
+            //Only works on the raspberry pi
+            Sleep sleep=new Sleep();
+            sleep.scheduleSleep(Setup.timeToSleep(), Setup.timeToWake());
+        WeatherModel weatherModel=new WeatherModel(sleep);
         //setup the controller and pass it a reference to the model
         PhotoFrameController controller = new PhotoFrameController(model,weatherModel);
         //attach the controller to the view (FXML)

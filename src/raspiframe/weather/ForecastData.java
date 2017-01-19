@@ -17,13 +17,14 @@ public class ForecastData
 
     private WeatherIcon weatherIcon;
     public ForecastData(){}
-
+    //All of the setters are only available to the package to keep the 
+    //data from being modified.
     public String getExpectedLowTempCelsius()
     {
         return expectedLowTempCelsius;
     }
 
-    public void setExpectedLowTempCelsius(String expectedLowTempCelsius)
+     void setExpectedLowTempCelsius(String expectedLowTempCelsius)
     {
         this.expectedLowTempCelsius = expectedLowTempCelsius;
     }
@@ -33,7 +34,7 @@ public class ForecastData
         return expectedHighTempCelsius;
     }
 
-    public void setExpectedHighTempCelsius(String expectedHighTempCelsius)
+    void setExpectedHighTempCelsius(String expectedHighTempCelsius)
     {
         this.expectedHighTempCelsius = expectedHighTempCelsius;
     }
@@ -43,7 +44,7 @@ public class ForecastData
         return expectedLowTempFahrenheit;
     }
 
-    public void setExpectedLowTempFahrenheit(String expectedLowTemp)
+    void setExpectedLowTempFahrenheit(String expectedLowTemp)
     {
         this.expectedLowTempFahrenheit = expectedLowTemp;
     }
@@ -53,7 +54,7 @@ public class ForecastData
         return expectedHighTempFahrenheit;
     }
 
-    public void setExpectedHighTempFahrenheit(String expectedHighTemp)
+    void setExpectedHighTempFahrenheit(String expectedHighTemp)
     {
         this.expectedHighTempFahrenheit = expectedHighTemp;
     }
@@ -63,7 +64,7 @@ public class ForecastData
         return weatherCondition;
     }
 
-    public void setWeatherCondition(String weatherCondition)
+    void setWeatherCondition(String weatherCondition)
     {
         this.weatherCondition = weatherCondition;
     }
@@ -73,7 +74,7 @@ public class ForecastData
         return forecastDay;
     }
 
-    public void setForecastDay(String forecastDay)
+    void setForecastDay(String forecastDay)
     {
         this.forecastDay = forecastDay;
     }

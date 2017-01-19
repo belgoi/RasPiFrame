@@ -33,7 +33,7 @@ public class CurrentConditions
         return windSpeed;
     }
 
-    public void setWindSpeed(String windSpeed)
+    void setWindSpeed(String windSpeed)
     {
         this.windSpeed = windSpeed;
     }
@@ -43,7 +43,7 @@ public class CurrentConditions
         return feelsLike;
     }
 
-    public void setFeelsLike(String feelsLike)
+    void setFeelsLike(String feelsLike)
     {
         this.feelsLike = feelsLike;
     }
@@ -53,7 +53,7 @@ public class CurrentConditions
         return relativeHumidity;
     }
 
-    public void setRelativeHumidity(String relativeHumidity)
+    void setRelativeHumidity(String relativeHumidity)
     {
         this.relativeHumidity = relativeHumidity;
     }
@@ -63,7 +63,7 @@ public class CurrentConditions
         return currentTemp;
     }
 
-    public void setCurrentTemp(String currentTemp)
+    void setCurrentTemp(String currentTemp)
     {
         this.currentTemp = currentTemp;
     }
@@ -82,7 +82,7 @@ public class CurrentConditions
     {
         return weatherCondition;
     } 
-    public void setWeatherCondition(String weatherCondition)
+    void setWeatherCondition(String weatherCondition)
     {
         this.weatherCondition = weatherCondition;      
     }
@@ -90,7 +90,7 @@ public class CurrentConditions
     {
         return sunrise;
     }
-    public void setSunrise(LocalTime sunrise)
+    void setSunrise(LocalTime sunrise)
     {
         this.sunrise=sunrise;
     }
@@ -98,7 +98,7 @@ public class CurrentConditions
     {
         return sunset;
     }
-    public void setSunset(LocalTime sunset)
+    void setSunset(LocalTime sunset)
     {
         this.sunset=sunset;
     }
