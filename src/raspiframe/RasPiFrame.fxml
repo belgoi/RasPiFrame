@@ -146,16 +146,18 @@
       </Group>
       <Group fx:id="currentGroup">
          <children>
-            <GridPane prefHeight="79.0" prefWidth="398.0">
+            <GridPane prefHeight="86.0" prefWidth="401.0">
                <columnConstraints>
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="119.0" minWidth="10.0" prefWidth="101.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="153.0" minWidth="10.0" prefWidth="98.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="194.0" minWidth="10.0" prefWidth="194.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="119.0" minWidth="10.0" prefWidth="110.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="153.0" minWidth="10.0" prefWidth="124.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="194.0" minWidth="10.0" prefWidth="166.0" />
                </columnConstraints>
                <rowConstraints>
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints maxHeight="32.0" minHeight="10.0" prefHeight="23.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="51.0" minHeight="10.0" prefHeight="34.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="51.0" minHeight="10.0" prefHeight="23.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="32.0" minHeight="10.0" prefHeight="23.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="23.0" vgrow="SOMETIMES" />
                   <RowConstraints />
                </rowConstraints>
                <children>
@@ -164,9 +166,9 @@
                         <Font name="Open Sans Extrabold" size="45.0" />
                      </font>
                   </Text>
-                  <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Wind:" wrappingWidth="67.31884765625" GridPane.columnIndex="1" GridPane.valignment="BOTTOM">
+                  <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Wind:" wrappingWidth="67.31884765625" GridPane.columnIndex="1">
                      <font>
-                        <Font name="Open Sans Extrabold" size="16.0" />
+                        <Font name="Open Sans Extrabold" size="15.0" />
                      </font>
                   </Text>
                   <ImageView fx:id="currentIcon" fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true" GridPane.halignment="CENTER">
@@ -174,30 +176,59 @@
                         <Insets right="10.0" />
                      </GridPane.margin>
                   </ImageView>
-                  <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Feels Like:" textAlignment="RIGHT" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.valignment="TOP">
+                  <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Feels Like:" textAlignment="RIGHT" GridPane.columnIndex="1" GridPane.rowIndex="2">
                      <font>
-                        <Font name="Open Sans Extrabold" size="16.0" />
+                        <Font name="Open Sans Extrabold" size="15.0" />
                      </font>
                   </Text>
                   <Text fx:id="feelsLike" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="105" GridPane.columnIndex="2" GridPane.rowIndex="2" GridPane.valignment="TOP">
                      <font>
-                        <Font name="Open Sans Extrabold" size="16.0" />
+                        <Font name="Open Sans Extrabold" size="15.0" />
                      </font>
                   </Text>
                   <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Humidity:" GridPane.columnIndex="1" GridPane.rowIndex="1">
                      <font>
-                        <Font name="Open Sans Extrabold" size="16.0" />
+                        <Font name="Open Sans Extrabold" size="15.0" />
                      </font>
                   </Text>
                   <Text fx:id="windSpeed" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="13 mph N" wrappingWidth="190.4140625" GridPane.columnIndex="2" GridPane.valignment="BOTTOM">
                      <font>
-                        <Font name="Open Sans Extrabold" size="16.0" />
+                        <Font name="Open Sans Extrabold" size="15.0" />
                      </font>
                   </Text>
                   <Text fx:id="humidity" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="65%" GridPane.columnIndex="2" GridPane.rowIndex="1">
                      <font>
-                        <Font name="Open Sans Extrabold" size="16.0" />
+                        <Font name="Open Sans Extrabold" size="15.0" />
                      </font>
+                  </Text>
+                  <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Precip Chance:" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                     <font>
+                        <Font name="Open Sans Extrabold" size="15.0" />
+                     </font>
+                     <GridPane.margin>
+                        <Insets />
+                     </GridPane.margin>
+                  </Text>
+                  <Text fx:id="rainChance" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="0%" GridPane.columnIndex="2" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                     <font>
+                        <Font name="Open Sans Extrabold" size="15.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="lastUpdated" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="last updated at " GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.valignment="BOTTOM">
+                     <font>
+                        <Font name="Open Sans Extrabold" size="11.0" />
+                     </font>
+                     <GridPane.margin>
+                        <Insets />
+                     </GridPane.margin>
+                  </Text>
+                  <Text fx:id="location" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="106.0" GridPane.halignment="LEFT" GridPane.rowIndex="4">
+                     <font>
+                        <Font name="Open Sans Extrabold" size="11.0" />
+                     </font>
+                     <GridPane.margin>
+                        <Insets />
+                     </GridPane.margin>
                   </Text>
                </children>
             </GridPane>

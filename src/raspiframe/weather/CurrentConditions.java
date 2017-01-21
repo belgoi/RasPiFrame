@@ -17,6 +17,7 @@ public class CurrentConditions
     private String currentTemp;
     private LocalTime sunrise;
     private LocalTime sunset;
+    private String lastUpdated;
     public CurrentConditions()
     {
          this.currentTemp="NA";
@@ -27,7 +28,14 @@ public class CurrentConditions
         this.weatherCondition="Unknown";
         this.windSpeed="NA";
     }
-
+    public String getLastUpdated()
+    {
+        return lastUpdated;
+    }
+    void setLastUpdated(String lastUpdated)
+    {
+        this.lastUpdated=lastUpdated;
+    }
     public String getWindSpeed()
     {
         return windSpeed;
@@ -67,15 +75,11 @@ public class CurrentConditions
     {
         this.currentTemp = currentTemp;
     }
-    public Image getWeatherIcon()
+    public Image getWeatherIcon(String dayNight)
     {
        LocalTime now=LocalTime.now();
        
-       //TODO: MOVE THIS LOGIC INTO THE WEATHER ICON CLASS
-       if (now.isAfter(sunrise) && now.isBefore(sunset))
-           weatherIcon=new WeatherIcon(this.weatherCondition,"day");
-       else
-           weatherIcon=new WeatherIcon(this.weatherCondition,"night");
+       weatherIcon=new WeatherIcon(this.weatherCondition,dayNight);
        return weatherIcon.getWeatherIcon();
     }
     public String getWeatherCondition()

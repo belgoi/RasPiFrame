@@ -24,6 +24,7 @@
 package raspiframe;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.HashMap;
 import java.util.Locale;
@@ -33,6 +34,7 @@ import java.util.TimerTask;
 import raspiframe.utilities.Setup;
 import raspiframe.weather.ForecastData;
 import raspiframe.weather.CurrentConditions;
+import raspiframe.weather.AstronomicalConditions;
 import raspiframe.weather.IWeather;
 import raspiframe.weather.WeatherUndergroundAPI;
 import javafx.beans.property.StringProperty;
@@ -57,6 +59,7 @@ public class WeatherModel implements SleepListener
 {
     private Map<LocalDate,ForecastData> forecast=new HashMap<>();
     private CurrentConditions currently=new CurrentConditions();
+    private AstronomicalConditions astro=new AstronomicalConditions();
     private IWeather weather;
     private StringProperty day0LabelString=new SimpleStringProperty();
     private StringProperty day1LabelString=new SimpleStringProperty();
@@ -74,19 +77,22 @@ public class WeatherModel implements SleepListener
     private StringProperty day1LowString=new SimpleStringProperty();
     private StringProperty day2LowString=new SimpleStringProperty();
     private StringProperty day3LowString=new SimpleStringProperty();
-    
+    private StringProperty precipChance=new SimpleStringProperty();
     private StringProperty temperature=new SimpleStringProperty();
     private StringProperty windSpeed=new SimpleStringProperty();
     private StringProperty windDir=new SimpleStringProperty();
     private StringProperty relHumidity=new SimpleStringProperty();
     private ObjectProperty currentIcon=new SimpleObjectProperty();
     private StringProperty feelsLike=new SimpleStringProperty();
+    private StringProperty lastUpdated=new SimpleStringProperty();
+    private StringProperty location=new SimpleStringProperty();
     private final long updateInterval;
     private long rescheduleWeatherInterval;
     private WeatherTask weatherTask = new WeatherTask();
    // private boolean weatherRescheduled=false;
     private final static int CONVERT_TO_MINUTES= 60*1000;
-    Timer timer;
+    private Timer timer;
+    private boolean isAsleep=false;
     
     public WeatherModel(Sleep sleep)
     {
@@ -112,16 +118,27 @@ public class WeatherModel implements SleepListener
     {
         if (eventMsg.equals("WakingUp"))
         {
+            isAsleep=false;
             updateWeather();
+
         }
         else
         {
+            isAsleep=true;
             cancelWeatherTimer();
         }
     }
     public ObjectProperty<Image> day0Icon()
     {
         return day0IconImage;
+    }
+    public StringProperty location()
+    {
+        return location;
+    }
+    public StringProperty precipChance()
+    {
+        return precipChance;
     }
     public StringProperty day0Label()
     {
@@ -207,7 +224,21 @@ public class WeatherModel implements SleepListener
     {
         return feelsLike; 
     }
-  
+    public StringProperty lastUpdated()
+    {
+        return lastUpdated;
+    }
+    private String DetermineNightDay()
+    {
+        LocalTime now=LocalTime.now();
+        LocalTime sunrise=astro.getSunrise();
+        LocalTime sunset=astro.getSunset();
+        String dayNight;       
+        if (now.isAfter(sunrise) && now.isBefore(sunset))
+            return("day");
+       else
+            return("night");
+    }
     //set the values for the current conditions. The properties are bound to the controller
     private void updateCurrentConditions(CurrentConditions currently)
     {
@@ -217,7 +248,9 @@ public class WeatherModel implements SleepListener
             relHumidity.set(currently.getRelativeHumidity());
             windSpeed.set(currently.getWindSpeed());
             temperature.set(currently.getCurrentTemp());
-            currentIcon.set(currently.getWeatherIcon());
+            currentIcon.set(currently.getWeatherIcon(DetermineNightDay()));
+            lastUpdated.set(currently.getLastUpdated());
+            location.set(Setup.formattedLocation());
         }
     }
    //Sets the values for forecast weather data.  The properties are bound to the controller
@@ -234,55 +267,67 @@ public class WeatherModel implements SleepListener
             {
                 if (entry.getKey().isEqual(today))
                 {
-                    day0LabelString.set("Today");
+                    String dayNight=DetermineNightDay();
+                    if(dayNight.equals("day"))
+                    {
+                        day0LabelString.set("Today");
+                        precipChance.set(entry.getValue().getPrecipChanceDay());
+                    }
+                    else
+                    {
+                        day0LabelString.set("Tonight");
+                        precipChance.set(entry.getValue().getPrecipChanceNight());
+                    }
                     day0HighString.set(entry.getValue().getExpectedHighTempFahrenheit());
                     day0LowString.set(entry.getValue().getExpectedLowTempFahrenheit());
-                    day0IconImage.set(entry.getValue().getWeatherIcon());                
+                    day0IconImage.set(entry.getValue().getWeatherIcon(DetermineNightDay()));                
                 }
                 else if(entry.getKey().isEqual(day1))
                 {
                     day1LabelString.set(entry.getKey().getDayOfWeek().getDisplayName(TextStyle.SHORT,Locale.US));
                     day1HighString.set(entry.getValue().getExpectedHighTempFahrenheit());
                     day1LowString.set(entry.getValue().getExpectedLowTempFahrenheit());
-                    day1IconImage.set(entry.getValue().getWeatherIcon());               
+                    day1IconImage.set(entry.getValue().getWeatherIcon("day"));               
                 }
                 else if (entry.getKey().isEqual(day2))
                 {
                     day2LabelString.set(entry.getKey().getDayOfWeek().getDisplayName(TextStyle.SHORT,Locale.US));
                     day2HighString.set(entry.getValue().getExpectedHighTempFahrenheit());
                     day2LowString.set(entry.getValue().getExpectedLowTempFahrenheit());            
-                    day2IconImage.set(entry.getValue().getWeatherIcon());                
+                    day2IconImage.set(entry.getValue().getWeatherIcon("day"));                
                 }
                 else if (entry.getKey().isEqual(day3))
                 {
                     day3LabelString.set(entry.getKey().getDayOfWeek().getDisplayName(TextStyle.SHORT,Locale.US));
                     day3HighString.set(entry.getValue().getExpectedHighTempFahrenheit());
                     day3LowString.set(entry.getValue().getExpectedLowTempFahrenheit());             
-                    day3IconImage.set(entry.getValue().getWeatherIcon());                
+                    day3IconImage.set(entry.getValue().getWeatherIcon("day"));                
                 }
             }
         }
     }
     private void updateWeather()
     {
-        //if(!Sleep.isAsleep)
-                  //      {
-                            boolean result=weather.refreshWeather();
-                            if(result==true)
-                            {
-                                forecast=weather.getForecast();
-                                currently=weather.getCurrentConditions();
-                                updateForecast(weather.getForecast());
-                                updateCurrentConditions(weather.getCurrentConditions());
-                                scheduleWeatherUpdate(updateInterval * CONVERT_TO_MINUTES);
-                            }
-                            else
-                            {
-                                //currently=new CurrentConditions();
-                                //updateCurrentConditions(currently);
-                                scheduleWeatherUpdate(rescheduleWeatherInterval * CONVERT_TO_MINUTES) ;
-                            }
-                   //     }
+
+        boolean result=weather.refreshWeather();
+        if(result==true)
+        {
+            forecast=weather.getForecast();
+            currently=weather.getCurrentConditions();
+            astro=weather.getAstronomicalConditions();
+            updateForecast(weather.getForecast());
+            updateCurrentConditions(weather.getCurrentConditions());
+            if (!isAsleep)
+                scheduleWeatherUpdate(updateInterval * CONVERT_TO_MINUTES);
+        }
+        else
+        {
+            //currently=new CurrentConditions();
+            //updateCurrentConditions(currently);
+            if (!isAsleep)
+                scheduleWeatherUpdate(rescheduleWeatherInterval * CONVERT_TO_MINUTES) ;
+        }
+
     }
     private class WeatherTask extends TimerTask
     {

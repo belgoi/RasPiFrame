@@ -79,6 +79,9 @@ public class PhotoFrameController implements Initializable
     @FXML private ImageView day3Icon;
     @FXML private Text day3High;
     @FXML private Text day3Low;
+    @FXML private Text rainChance;
+    @FXML private Text lastUpdated;
+    @FXML private Text location;
     
     private PhotoFrameModel model;
     private WeatherModel weatherModel;
@@ -150,6 +153,9 @@ public class PhotoFrameController implements Initializable
         humidity.textProperty().bindBidirectional(weatherModel.relativeHumidity());
         feelsLike.textProperty().bindBidirectional(weatherModel.feelsLike());
         currentTemp.textProperty().bindBidirectional(weatherModel.currentTemp());
+        rainChance.textProperty().bindBidirectional(weatherModel.precipChance());
+        lastUpdated.textProperty().bindBidirectional(weatherModel.lastUpdated());
+        location.textProperty().bindBidirectional(weatherModel.location());
     }
     public SequentialTransition buildSlide(ImageView picture)
     {

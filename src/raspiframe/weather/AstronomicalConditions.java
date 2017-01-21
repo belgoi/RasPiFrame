@@ -22,23 +22,48 @@
  * SOFTWARE.
  */
 package raspiframe.weather;
-import java.util.Map;
-import java.time.LocalDate;
+
 import java.time.LocalTime;
+
 /**
  *
  * @author David Hinchliffe <belgoi@gmail.com>
- * 
- * Provides the type for the Weather API's.  All of the weather API's must implement this interface
  */
-public interface IWeather
+public class AstronomicalConditions
 {
-    public  Map<LocalDate,ForecastData> getForecast();
-    public  void setLocation(String location);
-    public CurrentConditions getCurrentConditions();
-    public AstronomicalConditions getAstronomicalConditions();
-    public boolean refreshWeather ();
-    //TODO: remove these
-  /*  public LocalTime getSunrise();
-    public LocalTime getSunset();*/
+    private LocalTime sunrise;
+    private LocalTime sunset;
+    private String moonPhase;
+    
+    public AstronomicalConditions()
+    {
+        //iniatilize values to defaults;
+        sunrise=LocalTime.of(7, 0);
+        sunset=LocalTime.of(7,0);
+        moonPhase="Unknown";
+    }
+    public LocalTime getSunrise()
+    {
+        return sunrise;
+    }
+    void setSunrise(LocalTime sunrise)
+    {
+        this.sunrise=sunrise;
+    }
+    public LocalTime getSunset()
+    {
+        return sunset;
+    }
+    void setSunset(LocalTime sunset)
+    {
+        this.sunset=sunset;
+    }
+    public String getMoonPhase()
+    {
+        return this.moonPhase;
+    }
+    void setMoonPhase(String moonPhase)
+    {
+        this.moonPhase=moonPhase;
+    }
 }

@@ -30,6 +30,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.time.LocalDateTime;
 /**
  *
  * @author David Hinchliffe <belgoi@gmail.com>
@@ -39,12 +42,43 @@ import java.time.LocalTime;
  */
 public class ParseWeatherUnderground
 {
-    public ParseWeatherUnderground(){}
-    
+    String httpEntity;
+    public ParseWeatherUnderground(String httpEntity)
+    {
+        this.httpEntity=httpEntity;
+    }
+    public AstronomicalConditions getAstronomicalConditions()
+    {
+        AstronomicalConditions astronomicalConditions=new AstronomicalConditions();
+        if (!httpEntity.isEmpty())
+        {
+            try
+            {
+                JSONParser parser=new JSONParser();
+                JSONObject weatherData=(JSONObject)parser.parse(httpEntity);
+                //parses the JSON object sun phase to get sunrise and sunset
+                JSONObject astronomy =(JSONObject)weatherData.get("sun_phase");
+                JSONObject sunset = (JSONObject)astronomy.get("sunset");
+                JSONObject sunrise=(JSONObject)astronomy.get("sunrise");
+               // LocalTime sunsetTime=LocalTime.of(Integer.parseInt((String)sunset.get("hour")), Integer.parseInt((String)sunset.get("minute")));
+              //  LocalTime sunriseTime=LocalTime.of(Integer.parseInt((String)sunrise.get("hour")),Integer.parseInt((String)sunrise.get("minute")));
+                astronomy=(JSONObject)weatherData.get("moon_phase");
+                astronomicalConditions.setMoonPhase((String)astronomy.get("phaseofMoon"));
+                astronomicalConditions.setSunset(LocalTime.of(Integer.parseInt((String)sunset.get("hour")), Integer.parseInt((String)sunset.get("minute"))));
+                astronomicalConditions.setSunrise(LocalTime.of(Integer.parseInt((String)sunrise.get("hour")),Integer.parseInt((String)sunrise.get("minute"))));
+            }
+            catch(ParseException e)
+            {
+                System.err.println("Problem parsing astronomical conditions");
+                System.err.println(e);
+            }
+        }
+        return astronomicalConditions;
+    }
     //getCurrentConditions takes the JSON httpEntity string and parses out the 
     //fields for current conditions and the sunset and sunrise times 
     //returns the object CurrentConditions with the current conditions
-    public CurrentConditions getCurrentConditions(String httpEntity)
+    public CurrentConditions getCurrentConditions()
     {
         CurrentConditions conditions=new CurrentConditions();
         if (!httpEntity.isEmpty())
@@ -85,15 +119,10 @@ public class ParseWeatherUnderground
                 Double temp=(Double)currently.get("temp_f");
                 conditions.setCurrentTemp(Integer.toString(temp.intValue())+"\u00b0");
                 conditions.setWeatherCondition((String)currently.get("weather"));
-                
-                //parses the JSON object sun phase to get sunrise and sunset
-                JSONObject astronomy =(JSONObject)weatherData.get("sun_phase");
-                JSONObject sunset = (JSONObject)astronomy.get("sunset");
-                JSONObject sunrise=(JSONObject)astronomy.get("sunrise");
-                LocalTime sunsetTime=LocalTime.of(Integer.parseInt((String)sunset.get("hour")), Integer.parseInt((String)sunset.get("minute")));
-                LocalTime sunriseTime=LocalTime.of(Integer.parseInt((String)sunrise.get("hour")),Integer.parseInt((String)sunrise.get("minute"))); 
-                conditions.setSunrise(sunriseTime);
-                conditions.setSunset(sunsetTime);
+                LocalDateTime now=LocalDateTime.now();                       
+                String time=now.format(DateTimeFormatter.ofPattern("h:mm a"));
+                String date=now.format(DateTimeFormatter.ofPattern("EEEE"));
+                conditions.setLastUpdated("last updated at " + time);
             }
             catch(ParseException | ClassCastException e)
             {
@@ -106,7 +135,7 @@ public class ParseWeatherUnderground
     //getForecast takes the JSON httpEntity and parses out the current day forecast and the forecast
     //for the next 3 days.returns a hashmap with the date for the forecast as the key, and the forecast 
     //for the day as the value
-    public Map<LocalDate,ForecastData> getForecast(String httpEntity)
+    public Map<LocalDate,ForecastData> getForecast()
     {
         Map<LocalDate,ForecastData> conditions=new HashMap<>();
 
@@ -115,10 +144,14 @@ public class ParseWeatherUnderground
             JSONParser parser=new JSONParser();
             JSONObject weatherData=(JSONObject)parser.parse(httpEntity);
             JSONObject forecast=(JSONObject)weatherData.get("forecast");
+            
+            JSONObject txtForecast=(JSONObject)forecast.get("txt_forecast");
+            JSONArray forecastdayArray=(JSONArray)txtForecast.get("forecastday");
+            JSONObject forecastdayObject;
             JSONObject simpleForecast=(JSONObject)forecast.get("simpleforecast");
             JSONArray daily =(JSONArray)simpleForecast.get("forecastday");
             JSONObject periodForecast;
-            for (int i=0;i<daily.size();i++)
+            for ( int i=0;i<daily.size();i++)
             {
                 ForecastData forecastData=new ForecastData();
                 periodForecast=(JSONObject)daily.get(i);
@@ -136,6 +169,10 @@ public class ParseWeatherUnderground
                         LocalDate period=LocalDate.of(Integer.parseInt(year),Integer.parseInt(month),Integer.parseInt(day));  
 
                     forecastData.setWeatherCondition(periodForecast.get("conditions").toString());
+                    forecastdayObject=(JSONObject)forecastdayArray.get(i);
+                    forecastData.setPrecipChanceDay(forecastdayObject.get("pop").toString()+"%");
+                    forecastdayObject=(JSONObject)forecastdayArray.get(i+1);
+                    forecastData.setPrecipChanceNight(forecastdayObject.get("pop").toString()+"%");
                     conditions.put(period, forecastData);
             }
         }

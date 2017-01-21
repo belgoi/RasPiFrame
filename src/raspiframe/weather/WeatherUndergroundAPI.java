@@ -26,7 +26,6 @@ import raspiframe.utilities.httpConnection;
 import java.util.Map;
 import java.time.LocalDate;
 import raspiframe.utilities.Setup;
-import java.time.LocalTime;
 /**
  *
  * @author David Hinchliffe <belgoi@gmail.com>
@@ -43,6 +42,7 @@ public class WeatherUndergroundAPI implements IWeather
     private String city;
     private Map<LocalDate,ForecastData> forecast;
     private CurrentConditions currentConditions;
+    private AstronomicalConditions astronomicalConditions;
 
     public WeatherUndergroundAPI(String key)
     {
@@ -59,13 +59,48 @@ public class WeatherUndergroundAPI implements IWeather
                 
         return "/api/" + key + "/forecast/conditions/astronomy/q/"+state+"/"+city+".json";
     }
+    private String formatCity(String city)
+    {
+        char cityArray[]=new char[city.length()];
+        String formattedCity = new String();
+        cityArray=city.toCharArray();
+        boolean prevIsSpace=false;
+        if (city.contains(" "))
+        {
+            //Remove all leading spaces
+
+            for (int i=0;i<city.length();++i)
+            {
+                String a=Character.toString(cityArray[i]);
+                if (a.equals(" "))
+                {
+                    if(!prevIsSpace)
+                    {
+                        formattedCity+="_";
+                        prevIsSpace=true;
+                    }
+                }
+                else
+                    {
+                        prevIsSpace=false;
+                        formattedCity+=a;
+                    }
+            }
+        }
+        else 
+            formattedCity=city;
+        
+        return formattedCity;
+    }
     
     //sets the location to retrieve the weather data for
     @Override
     public void setLocation(String location)
     {
+        String city;
         this.state=(location.contains(",") ? location.substring(location.indexOf(",") +1):"");
-        this.city=(location.contains(",") ? location.substring(0,location.indexOf(",")):"");
+        city=(location.contains(",") ? location.substring(0,location.indexOf(",")):"");
+        this.city=formatCity(city);
     }
    
     //refreshes the weather data by calling the get request to the URI. It then passes the 
@@ -77,14 +112,17 @@ public class WeatherUndergroundAPI implements IWeather
         currentConditions=new CurrentConditions();
         httpConnection connection=new httpConnection(HOST,buildGetWeatherRequestUri());
         String httpEntity=connection.getEntity();
-        ParseWeatherUnderground parse=new ParseWeatherUnderground();
-        forecast=parse.getForecast(httpEntity);
-        currentConditions=parse.getCurrentConditions(httpEntity);
-        if (httpEntity.isEmpty() || currentConditions.getWeatherCondition().equals("Unknown"))
+       
+        if(httpEntity.isEmpty())
             return false;
         else
-            return true;
-    //    }
+        {
+            ParseWeatherUnderground parse=new ParseWeatherUnderground(httpEntity);
+            forecast=parse.getForecast();
+            currentConditions=parse.getCurrentConditions();
+            astronomicalConditions=parse.getAstronomicalConditions();
+            return true;    
+        }
     }
     
     //Returns the hashmap with the forecast data
@@ -101,18 +139,9 @@ public class WeatherUndergroundAPI implements IWeather
         return currentConditions;
     }
     
-    //Returns a LocalTime object with the time of the sunset
     @Override
-    public LocalTime getSunset()
+    public AstronomicalConditions getAstronomicalConditions()
     {
-        return currentConditions.getSunset(); 
+        return astronomicalConditions;
     }
-    
-    //Returns a LocalTime object with the time of the sunrise
-    @Override
-    public LocalTime getSunrise()
-    {
-        return currentConditions.getSunrise();
-    }
-    
 }

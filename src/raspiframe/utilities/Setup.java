@@ -96,6 +96,55 @@ public final class Setup
         readJsonFile(getSetupFilePath() + "/config.json");
        // LocalTime currentTime=LocalTime.now();
     }
+       
+        public static String formattedLocation()
+        {
+            String cityState=LOCATION.get().toLowerCase();
+            //String city=cityState.substring(0,cityState.indexOf(","));
+            int commaPos=cityState.indexOf(",");
+            
+            //String City=cityState.substring(0,1).toUpperCase() + cityState.substring(1,commaPos);
+            String city=cityState.substring(0,commaPos);
+            String formattedCity=new String();
+            boolean capitalNext=false;
+            //char cityArray[]=new char[city.length()];
+            //cityArray=city.toCharArray();
+            if (city.contains(" "))
+            {
+                char cityArray[]=new char[city.length()];
+                cityArray=city.toCharArray();
+                int i=0;
+                String a=Character.toString(cityArray[i]);
+                formattedCity=a.toUpperCase();
+                for (i++;i<city.length();i++)
+                {
+                    a=Character.toString(cityArray[i]);
+                    
+                    if (a.equals(" "))
+                    {
+                       capitalNext=true;
+                       formattedCity +=a;
+                    }
+                    else
+                    {
+                        if (capitalNext)
+                        {
+                            formattedCity+=a.toUpperCase();
+                            capitalNext=false;
+                        }
+                        else
+                            formattedCity+=a;
+                    }
+                }
+ 
+            }
+            else
+                formattedCity=cityState.substring(0,1).toUpperCase() + cityState.substring(1,commaPos);
+
+           // String State=cityState.substring(commaPos+1,commaPos+2).toUpperCase()+cityState.substring(commaPos+2,commaPos+3);
+            //String State=cityState.substring(cityState.indexOf(","),0).toUpperCase() + cityState.substring(cityState.indexOf(","));
+            return formattedCity;
+        }
         public static String getSetupFilePath()
         {
             String path=new String();
@@ -200,8 +249,7 @@ public final class Setup
          FADEINLENGTH.set((Double)setupObject.get("fadein"));
          FADEOUTLENGTH.set((Double)setupObject.get("fadeout"));
          PRESERVE_ASPECT_RATIO.set((Boolean)setupObject.get("preserve_aspect_ratio"));
-         LOCATION.set((String)setupObject.get("location"));
-
+         LOCATION.set(((String)setupObject.get("location_city")).trim() +","+ (((String)setupObject.get("location_state"))).trim());
          WEATHERAPIKEY.set((String)setupObject.get("weather_api_key"));
          UPDATEWEATHERINTERVAL.set((Long)setupObject.get("update_weather_interval"));
          //validate and parse time to sleep

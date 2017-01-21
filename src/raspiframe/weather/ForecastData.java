@@ -14,6 +14,8 @@ public class ForecastData
     private String expectedHighTempCelsius;
     private String weatherCondition;
     private String forecastDay;
+    private String precipChanceDay;
+    private String precipChanceNight;
 
     private WeatherIcon weatherIcon;
     public ForecastData(){}
@@ -23,7 +25,22 @@ public class ForecastData
     {
         return expectedLowTempCelsius;
     }
-
+    public String getPrecipChanceDay()
+    {
+        return this.precipChanceDay;
+    }
+    void setPrecipChanceDay(String precipChance)
+    {
+        this.precipChanceDay=precipChance;
+    }
+    public String getPrecipChanceNight()
+    {
+        return this.precipChanceNight;
+    }
+    void setPrecipChanceNight(String precipChance)
+    {
+       this.precipChanceNight = precipChance;
+    }
      void setExpectedLowTempCelsius(String expectedLowTempCelsius)
     {
         this.expectedLowTempCelsius = expectedLowTempCelsius;
@@ -78,9 +95,9 @@ public class ForecastData
     {
         this.forecastDay = forecastDay;
     }
-    public Image getWeatherIcon()
+    public Image getWeatherIcon(String dayNight)
     {
-        weatherIcon=new WeatherIcon(this.weatherCondition,"day");
+        weatherIcon=new WeatherIcon(this.weatherCondition,dayNight);
         return weatherIcon.getWeatherIcon();
     }
     
