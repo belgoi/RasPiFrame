@@ -87,7 +87,7 @@ public class WeatherModel implements SleepListener
     private StringProperty lastUpdated=new SimpleStringProperty();
     private StringProperty location=new SimpleStringProperty();
     private final long updateInterval;
-    private long rescheduleWeatherInterval;
+    private final long rescheduleWeatherInterval;
     private WeatherTask weatherTask = new WeatherTask();
    // private boolean weatherRescheduled=false;
     private final static int CONVERT_TO_MINUTES= 60*1000;
@@ -105,6 +105,7 @@ public class WeatherModel implements SleepListener
         updateWeather();
         //register object to be an observer of the sleep object's events
         registerListener(sleep);
+        
     }
     private void registerListener(Sleep sleep)
     {

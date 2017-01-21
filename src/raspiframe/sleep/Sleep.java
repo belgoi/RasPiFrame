@@ -77,6 +77,7 @@ public class Sleep implements Observable
             private LocalDateTime wakeUpTime;
             private LocalDateTime sleepTime;
             private LocalDateTime lastSleep;
+            LocalDateTime currentTime;
             PutToSleep(LocalTime timeToSleep,LocalTime timeToWake)
             {
                 this.timeToSleep=timeToSleep;
@@ -137,9 +138,9 @@ public class Sleep implements Observable
                     }
                 }                   
             }
+           @Override
             public void run()
             {
-                LocalDateTime currentTime;
                 while (true)
                 {
                     currentTime=LocalDateTime.now();

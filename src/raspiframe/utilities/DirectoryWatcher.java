@@ -48,10 +48,10 @@ public class DirectoryWatcher
         //Have to embed the class inside the method since parameters have to be passed in
         class watchDirectory implements Runnable
         {
-            String directory;
+            private String directory;
             private Path path;
-            WatchService watchService;
-            WatchKey watchKey;
+            private WatchService watchService;
+            private WatchKey watchKey;
             private ObservableList<myImageView> observablePhotoList;
             watchDirectory(String imgDirectory,ObservableList<myImageView> observablePhotoList)
             {
