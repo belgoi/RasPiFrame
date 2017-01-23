@@ -108,8 +108,14 @@ public class DirectoryWatcher
                             try{
                             ImageLoader il=new ImageLoader();
                             String[] imgs={file.getFileName().toString()};
+                            for (String img:imgs)
+                            {
+                                for(int i=0;i<observablePhotoList.size();i++)
+                                    if (img.equals(observablePhotoList.get(i).getImageUrl()))
+                                        observablePhotoList.remove(i);
+                            }
                             //need to delay loading the images just long enough to allow the file to finish writing    
-                            Thread.sleep(500);
+                            Thread.sleep(60*1000);
                             il.Load(observablePhotoList, imgs);
                            
                             }

@@ -173,8 +173,11 @@
                   </Text>
                   <ImageView fx:id="currentIcon" fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true" GridPane.halignment="CENTER">
                      <GridPane.margin>
-                        <Insets right="10.0" />
+                        <Insets bottom="10.0" right="10.0" />
                      </GridPane.margin>
+                     <image>
+                        <Image url="@../../../../../../../../RasPiFrame/icons/wsymbol_0010_heavy_rain_showers.png" />
+                     </image>
                   </ImageView>
                   <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Feels Like:" textAlignment="RIGHT" GridPane.columnIndex="1" GridPane.rowIndex="2">
                      <font>

@@ -148,7 +148,7 @@ public class PhotoFrameController implements Initializable
         day3Icon.imageProperty().bindBidirectional(weatherModel.day3Icon());
         currentIcon.imageProperty().bindBidirectional(weatherModel.currentIcon());
         currentGroup.setLayoutX(0);
-        currentGroup.setLayoutY(15);
+        currentGroup.setLayoutY(28);
         windSpeed.textProperty().bindBidirectional(weatherModel.windMph());
         humidity.textProperty().bindBidirectional(weatherModel.relativeHumidity());
         feelsLike.textProperty().bindBidirectional(weatherModel.feelsLike());

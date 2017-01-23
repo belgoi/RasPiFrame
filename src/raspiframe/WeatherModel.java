@@ -229,6 +229,18 @@ public class WeatherModel implements SleepListener
     {
         return lastUpdated;
     }
+    //TODO: move these two methods to the classes.  
+    private String DetermineNightDayForecast()
+    {
+        LocalTime now=LocalTime.now();
+        LocalTime sunrise=astro.getSunrise();
+        LocalTime sunset=astro.getSunset();
+        if(now.isAfter(sunset) && now.isBefore(LocalTime.MAX))
+            return("night");
+        else
+            return("day");
+       
+    }
     private String DetermineNightDay()
     {
         LocalTime now=LocalTime.now();
@@ -268,7 +280,7 @@ public class WeatherModel implements SleepListener
             {
                 if (entry.getKey().isEqual(today))
                 {
-                    String dayNight=DetermineNightDay();
+                    String dayNight=DetermineNightDayForecast();
                     if(dayNight.equals("day"))
                     {
                         day0LabelString.set("Today");
@@ -281,7 +293,7 @@ public class WeatherModel implements SleepListener
                     }
                     day0HighString.set(entry.getValue().getExpectedHighTempFahrenheit());
                     day0LowString.set(entry.getValue().getExpectedLowTempFahrenheit());
-                    day0IconImage.set(entry.getValue().getWeatherIcon(DetermineNightDay()));                
+                    day0IconImage.set(entry.getValue().getWeatherIcon(DetermineNightDayForecast()));                
                 }
                 else if(entry.getKey().isEqual(day1))
                 {
