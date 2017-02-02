@@ -115,7 +115,7 @@ public class DirectoryWatcher
                                         observablePhotoList.remove(i);
                             }
                             //need to delay loading the images just long enough to allow the file to finish writing    
-                            Thread.sleep(60*1000);
+                            Thread.sleep(30*1000);
                             il.Load(observablePhotoList, imgs);
                            
                             }

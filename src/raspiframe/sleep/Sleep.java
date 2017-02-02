@@ -50,18 +50,18 @@ public class Sleep implements Observable
     //Overrides the 3 methods of the Observable interface.  Provides for the ability to add/remove
     //listeners and to push messages to all listeners. 
     @Override
-    public void addListener(SleepListener object)
+    public synchronized void addListener(SleepListener object)
     {
         listeners.add(object);
     }
     @Override
-    public void removeListener(SleepListener object)
+    public synchronized void removeListener(SleepListener object)
     {
         if(listeners.contains(object))
             listeners.remove(object);
     }
     @Override
-    public void onEvent(String eventMsg)
+    public synchronized void onEvent(String eventMsg)
     {
         for(SleepListener listener:listeners)
         {

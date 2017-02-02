@@ -115,7 +115,7 @@ public class WeatherModel implements SleepListener
     //Sets up an observer pattern between the Sleep object and WeatherModel object
     //Lets the object know when it is sleepy time.  
     @Override
-    public void onAction(String eventMsg)
+    public synchronized void onAction(String eventMsg)
     {
         if (eventMsg.equals("WakingUp"))
         {

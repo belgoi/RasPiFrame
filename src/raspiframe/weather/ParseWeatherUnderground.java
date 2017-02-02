@@ -67,7 +67,7 @@ public class ParseWeatherUnderground
                 astronomicalConditions.setSunset(LocalTime.of(Integer.parseInt((String)sunset.get("hour")), Integer.parseInt((String)sunset.get("minute"))));
                 astronomicalConditions.setSunrise(LocalTime.of(Integer.parseInt((String)sunrise.get("hour")),Integer.parseInt((String)sunrise.get("minute"))));
             }
-            catch(ParseException e)
+            catch(ParseException | NullPointerException e)
             {
                 System.err.println("Problem parsing astronomical conditions");
                 System.err.println(e);
@@ -81,6 +81,7 @@ public class ParseWeatherUnderground
     public CurrentConditions getCurrentConditions()
     {
         CurrentConditions conditions=new CurrentConditions();
+        JSONObject currentlytest;
         if (!httpEntity.isEmpty())
         {
             try
@@ -89,42 +90,47 @@ public class ParseWeatherUnderground
                 JSONObject weatherData=(JSONObject)parser.parse(httpEntity);
                 //parses the JSON object current observation to get current conditions
                 JSONObject currently=(JSONObject)weatherData.get("current_observation");
-                
+                currentlytest=currently;
                 //get and set the wind conditions
-                String windSpeed=((Double)currently.get("wind_mph")).toString();
-                String windString=(String)currently.get("wind_string");
-                String windDirection=formatDirection((String)currently.get("wind_dir"));       
+                String windSpeed=(currently.get("wind_mph")).toString();
+                String windString=(currently.get("wind_string")).toString();
+                String windDirection=formatDirection((currently.get("wind_dir")).toString());       
                //build the wind string to display on the overlay
                 if (windString.equals("Calm"))
                     conditions.setWindSpeed("0 mph");
                 else
                 {
                     //if wind gusts are 0 mph then the API returns a long rather than a string resulting in a cast exception
-                    try
-                    {
-                        String windGusts=(String)currently.get("wind_gust_mph");                
-                        conditions.setWindSpeed(windSpeed.equals(windGusts)?windSpeed + " mph":windSpeed +" - " + windGusts + " mph " + windDirection);
-                    }
+                  //  try
+                  //  {
+                        String windGusts=currently.get("wind_gust_mph").toString();                
+                        if(windGusts.equals("0"))
+                            conditions.setWindSpeed(windSpeed+" mph " + windDirection);
+                        else
+                            conditions.setWindSpeed(windSpeed.equals(windGusts)?windSpeed + " mph":windSpeed +" - " + windGusts + " mph " + windDirection);
+                //    }
                     //if wind gusts are 0, the API returns a long resulting in a cast exception
                     //unlike before, there isn't any easy way to catch it and avoid using the try catch
-                    catch(ClassCastException e)
-                    {
-                        conditions.setWindSpeed(windSpeed + " mph");
-                    }
+                 //   catch(ClassCastException e)
+                //    {
+                  //      conditions.setWindSpeed(windSpeed + " mph");
+                  //  }
                 }
                 
-                Double feelsLike=Double.parseDouble((String)currently.get("feelslike_f"));                    
-                conditions.setFeelsLike(Integer.toString(feelsLike.intValue())+ "\u00b0");
-                conditions.setRelativeHumidity((String)currently.get("relative_humidity"));
-                Double temp=(Double)currently.get("temp_f");
-                conditions.setCurrentTemp(Integer.toString(temp.intValue())+"\u00b0");
-                conditions.setWeatherCondition((String)currently.get("weather"));
+                String feelsLike=(currently.get("feelslike_f").toString());                    
+                //conditions.setFeelsLike(Integer.toString(feelsLike.intValue())+ "\u00b0");
+                conditions.setFeelsLike(feelsLike.contains(".")?feelsLike.substring(0,feelsLike.indexOf("."))+"\u00b0":feelsLike+"\u00b0");
+                conditions.setRelativeHumidity(currently.get("relative_humidity").toString());
+                String temp=currently.get("temp_f").toString();
+               // conditions.setCurrentTemp(Integer.toString(temp.intValue())+"\u00b0");
+                conditions.setCurrentTemp(temp.contains(".")?temp.substring(0,temp.indexOf("."))+"\u00b0":temp+"\u00b0" );
+                conditions.setWeatherCondition(currently.get("weather").toString());
                 LocalDateTime now=LocalDateTime.now();                       
                 String time=now.format(DateTimeFormatter.ofPattern("h:mm a"));
                 String date=now.format(DateTimeFormatter.ofPattern("EEEE"));
                 conditions.setLastUpdated("last updated at " + time);
             }
-            catch(ParseException | ClassCastException e)
+            catch(ParseException | ClassCastException |NullPointerException e)
             {
                 System.err.println("ParseWeatherUnderground: getCurrentConditions: " + e);
             }
@@ -176,7 +182,7 @@ public class ParseWeatherUnderground
                     conditions.put(period, forecastData);
             }
         }
-        catch(ParseException | ClassCastException e)
+        catch(ParseException | ClassCastException | NullPointerException e)
         {
             System.err.println("ParseWeatherUnderground: getForecast: " + e);
         }
