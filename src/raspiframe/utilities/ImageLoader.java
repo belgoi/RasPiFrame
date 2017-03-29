@@ -78,6 +78,8 @@ public class ImageLoader
         if (fileNames.length>0)
         {
             for (String file:fileNames)      
+            {
+                try{
                 if (validateFile(file))
                 {
                     if (Setup.preserveAspectRatio())
@@ -85,6 +87,12 @@ public class ImageLoader
                     else
                         images.add(new myImageView(file,new Image(imgUri+file,Setup.screenWidth(),Setup.screenHeight(),false,false)));
                 }
+                }
+                catch (Exception e)
+                {
+                    System.err.println(e);
+                }
+            }
         }
 
     }
