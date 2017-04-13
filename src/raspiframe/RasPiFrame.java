@@ -64,8 +64,9 @@ public class RasPiFrame extends Application
             Sleep sleep=new Sleep();
             sleep.scheduleSleep(Setup.timeToSleep(), Setup.timeToWake());
         WeatherModel weatherModel=new WeatherModel(sleep);
+        ClockModel clockModel=new ClockModel();
         //setup the controller and pass it a reference to the model
-        PhotoFrameController controller = new PhotoFrameController(model,weatherModel);
+        PhotoFrameController controller = new PhotoFrameController(model,weatherModel,clockModel);
         //attach the controller to the view (FXML)
         loader.setController(controller);
 

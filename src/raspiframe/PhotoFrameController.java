@@ -86,16 +86,18 @@ public class PhotoFrameController implements Initializable
     private PhotoFrameModel model;
     private WeatherModel weatherModel;
     private  List<myImageView> pictures;
+    private ClockModel clockModel;
     
     public PhotoFrameController()
     {       
         pictures=new ArrayList();
     }
-    public PhotoFrameController(PhotoFrameModel model, WeatherModel weatherModel)
+    public PhotoFrameController(PhotoFrameModel model, WeatherModel weatherModel,ClockModel clockModel)
     {
         this();
         this.model=model;
         this.weatherModel=weatherModel;
+        this.clockModel=clockModel;
     }
   
     @Override
@@ -124,8 +126,9 @@ public class PhotoFrameController implements Initializable
     }
     public void setBindings()
     {
-        clock.textProperty().bindBidirectional(model.timeProperty());
-        date.textProperty().bindBidirectional(model.dateProperty());
+        clock.textProperty().bindBidirectional(clockModel.timeProperty());
+        date.textProperty().bindBidirectional(clockModel.dateProperty());
+        
         double position =Setup.screenHeight()-clockGroup.getLayoutBounds().getMaxY();
         clockGroup.setLayoutY(position);
         double positionX=Setup.screenWidth()-forecastGroup.getLayoutBounds().getMaxX();

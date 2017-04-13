@@ -26,7 +26,6 @@ import java.time.LocalTime;
 import raspiframe.utilities.Setup;
 import raspiframe.utilities.ImageLoader;
 import raspiframe.utilities.DirectoryWatcher;
-import raspiframe.utilities.Clock;
 import javafx.collections.ObservableList;
 import java.util.ArrayList;
 import raspiframe.utilities.myImageView;
@@ -47,54 +46,17 @@ public class PhotoFrameModel
         private List<myImageView>photoList;
         private final StringProperty timeString=new SimpleStringProperty();
         private StringProperty dateString = new SimpleStringProperty();
-        private Clock clock;
         public PhotoFrameModel()
         {
             //underlying arraylist for the observable photo list
             photoList=new ArrayList();
             //the observableList for all of the photos 
             observablePhotoList=FXCollections.observableList(photoList);
-            clock=new Clock();
-            startClock();
  
-        }
-        public StringProperty dateProperty()
-        {
-           // Clock clock=new Clock();
-            dateString.set(clock.getDate());
-            return dateString;
-        }
-        public StringProperty timeProperty()
-        {
-            return timeString;
         }
         public ObservableList<myImageView> getObservablePhotoList()
         {
             return observablePhotoList;
-        }
-        private void startClock()
-        {
-           TimerTask task=new TimerTask()
-           {
-                @Override
-                public void run()
-                {
-                    Thread.currentThread().setName("Clock");
-                   timeString.set(clock.getTime());
-                   dateString.set(clock.getDate());
-                }
-            };
-            try
-            {  
-                Timer timer=new Timer("Clock Timer");
-                //start timer now and execute every second
-                timer.scheduleAtFixedRate(task,0,1000);
-            }
-            catch (Exception e)
-            {
-                System.err.println("Clock thread has encountered an exception");
-                System.err.println(e);
-            }
         }
 
         public void loadImgFiles()
