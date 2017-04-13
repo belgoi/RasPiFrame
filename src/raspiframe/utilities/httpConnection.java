@@ -43,8 +43,8 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class httpConnection
 {
-    private String host;
-    private String getURI;
+    private final String host;
+    private final String getURI;
     //Constructor sets the host, and the getURI
     public httpConnection(String host,String getURI)
     {

@@ -32,7 +32,7 @@ import javafx.scene.image.Image;
  */
 public class myImageView extends ImageView
 {
-    private String url;
+    private final String url;
     public myImageView(String url,Image image)
     {
             super(image);

@@ -60,8 +60,7 @@ public class ParseWeatherUnderground
                 JSONObject astronomy =(JSONObject)weatherData.get("sun_phase");
                 JSONObject sunset = (JSONObject)astronomy.get("sunset");
                 JSONObject sunrise=(JSONObject)astronomy.get("sunrise");
-               // LocalTime sunsetTime=LocalTime.of(Integer.parseInt((String)sunset.get("hour")), Integer.parseInt((String)sunset.get("minute")));
-              //  LocalTime sunriseTime=LocalTime.of(Integer.parseInt((String)sunrise.get("hour")),Integer.parseInt((String)sunrise.get("minute")));
+            
                 astronomy=(JSONObject)weatherData.get("moon_phase");
                 astronomicalConditions.setMoonPhase((String)astronomy.get("phaseofMoon"));
                 astronomicalConditions.setSunset(LocalTime.of(Integer.parseInt((String)sunset.get("hour")), Integer.parseInt((String)sunset.get("minute"))));
@@ -81,7 +80,7 @@ public class ParseWeatherUnderground
     public CurrentConditions getCurrentConditions()
     {
         CurrentConditions conditions=new CurrentConditions();
-        JSONObject currentlytest;
+      //  JSONObject currentlytest;
         if (!httpEntity.isEmpty())
         {
             try
@@ -90,7 +89,7 @@ public class ParseWeatherUnderground
                 JSONObject weatherData=(JSONObject)parser.parse(httpEntity);
                 //parses the JSON object current observation to get current conditions
                 JSONObject currently=(JSONObject)weatherData.get("current_observation");
-                currentlytest=currently;
+                //currentlytest=currently;
                 //get and set the wind conditions
                 String windSpeed=(currently.get("wind_mph")).toString();
                 String windString=(currently.get("wind_string")).toString();
@@ -100,29 +99,19 @@ public class ParseWeatherUnderground
                     conditions.setWindSpeed("0 mph");
                 else
                 {
-                    //if wind gusts are 0 mph then the API returns a long rather than a string resulting in a cast exception
-                  //  try
-                  //  {
                         String windGusts=currently.get("wind_gust_mph").toString();                
                         if(windGusts.equals("0"))
                             conditions.setWindSpeed(windSpeed+" mph " + windDirection);
                         else
                             conditions.setWindSpeed(windSpeed.equals(windGusts)?windSpeed + " mph":windSpeed +" - " + windGusts + " mph " + windDirection);
-                //    }
-                    //if wind gusts are 0, the API returns a long resulting in a cast exception
-                    //unlike before, there isn't any easy way to catch it and avoid using the try catch
-                 //   catch(ClassCastException e)
-                //    {
-                  //      conditions.setWindSpeed(windSpeed + " mph");
-                  //  }
                 }
                 
                 String feelsLike=(currently.get("feelslike_f").toString());                    
-                //conditions.setFeelsLike(Integer.toString(feelsLike.intValue())+ "\u00b0");
+
                 conditions.setFeelsLike(feelsLike.contains(".")?feelsLike.substring(0,feelsLike.indexOf("."))+"\u00b0":feelsLike+"\u00b0");
                 conditions.setRelativeHumidity(currently.get("relative_humidity").toString());
                 String temp=currently.get("temp_f").toString();
-               // conditions.setCurrentTemp(Integer.toString(temp.intValue())+"\u00b0");
+
                 conditions.setCurrentTemp(temp.contains(".")?temp.substring(0,temp.indexOf("."))+"\u00b0":temp+"\u00b0" );
                 conditions.setWeatherCondition(currently.get("weather").toString());
                 LocalDateTime now=LocalDateTime.now();                       

@@ -24,7 +24,6 @@
 package raspiframe.weather;
 import java.util.Map;
 import java.time.LocalDate;
-import java.time.LocalTime;
 /**
  *
  * @author David Hinchliffe <belgoi@gmail.com>
@@ -38,7 +37,5 @@ public interface IWeather
     public CurrentConditions getCurrentConditions();
     public AstronomicalConditions getAstronomicalConditions();
     public boolean refreshWeather ();
-    //TODO: remove these
-  /*  public LocalTime getSunrise();
-    public LocalTime getSunset();*/
+
 }

@@ -29,8 +29,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import raspiframe.utilities.Setup;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import raspiframe.sleep.Sleep;
 

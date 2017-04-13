@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 package raspiframe;
-import java.time.LocalTime;
 import raspiframe.utilities.Setup;
 import raspiframe.utilities.ImageLoader;
 import raspiframe.utilities.DirectoryWatcher;
@@ -31,10 +30,7 @@ import java.util.ArrayList;
 import raspiframe.utilities.myImageView;
 import javafx.collections.FXCollections;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import javafx.beans.property.StringProperty;
-import javafx.beans.property.SimpleStringProperty;
+
 
 /**
  *
@@ -42,10 +38,9 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class PhotoFrameModel
 {
-        private ObservableList<myImageView> observablePhotoList;
-        private List<myImageView>photoList;
-        private final StringProperty timeString=new SimpleStringProperty();
-        private StringProperty dateString = new SimpleStringProperty();
+        private final ObservableList<myImageView> observablePhotoList;
+        private final List<myImageView>photoList;
+
         public PhotoFrameModel()
         {
             //underlying arraylist for the observable photo list
